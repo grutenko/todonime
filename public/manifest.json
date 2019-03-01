@@ -1,15 +1,40 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
+  "manifest_version": 2,
+  "name": "Todonime",
+  "short_name": "Todonime",
+  "version": "0.1.0",
+  "description": "Todonime - многофункциональное расширение для Хикикомори.",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "icons": {
+  	"32":"images/logotype-32x32.png",
+        "48":"images/logotype-48x48.png",
+       	"128":"images/logotype-128x128.png"
+  },
+  "content_scripts": [
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "matches": [ "*://*/*" ],
+      "js": [ "js/content.js" ]
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background": {
+    "scripts": ["js/background.js"]
+  },
+  "permissions": [
+	"notifications",
+  	"identity",
+  	"tabs",
+  	"activeTab",
+  	"contextMenus",
+  	"storage",
+  	"https://shikimori.org/*"
+  ],
+  "browser_action": {
+        "default_title": "Todonime",
+        "default_icon": {
+        	"32":"images/logotype-32x32.png",
+        	"48":"images/logotype-48x48.png",
+        	"128":"images/logotype-128x128.png"
+        },
+        "default_popup": "index.html"
+    }	
 }
