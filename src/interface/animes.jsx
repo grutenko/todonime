@@ -10,6 +10,7 @@ export class Animes extends Component {
 			loaded: false,
 			limitedAnimes: true,
 			type: props.type,
+			searching: false
 		};
 		
 		this.limit = props.limit;
@@ -65,7 +66,8 @@ export class Animes extends Component {
 			callback(data);
 			var newState = {
 				loaded: true,
-				limitedAnimes: data.length >= this.limit
+				limitedAnimes: data.length >= this.limit,
+				searching: params.searching || false
 			};
 				
 			this.setState(Object.assign(this.state, newState));
@@ -81,16 +83,18 @@ export class Animes extends Component {
 	}
 	
 	onUpdateSearch(text) {
+		if(text == "" && !this.state.searching) return;
+		
 		this.page = 0;
 		
-		if(text == "") {
-			this.getAnimes({}, (data) => {
+		if(text == "" && this.state.searching) {
+			this.getAnimes({searching: false}, (data) => {
 				this.animes = data
 			});
 			return;
 		}
 		
-		this.getAnimes({search: text}, (data) => {
+		this.getAnimes({search: text, searching: true}, (data) => {
 			this.animes = data;
 		});
 	}
