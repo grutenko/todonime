@@ -5,6 +5,9 @@ import API, {authorize} from '../model/api';
 export const ButtonMore = ({count, onClick}) =>
 	<button className="main__button more-animes" onClick={onClick}>{"Еще " +count}</button>
 	
+export const ButtonMoreMessages = ({count, onClick}) =>
+	<button className="main__button more-messages" onClick={onClick}>{"Еще " +count}</button>
+	
 export const ButtonBack = ({text, onClick}) =>
 	<button className="main__button back__button" onClick={onClick}>{text}</button>
 	

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 import API from '../model/api';
-import {Loader, ButtonMore, ButtonBack, Search} from './misc.jsx';
+import {Loader, ButtonMoreMessages, ButtonBack, Search} from './misc.jsx';
 import {WSAPI, authorize} from "../model/webSocketApi";
 import DOMPurify from 'dompurify';
 
@@ -138,80 +138,100 @@ class Messages extends Component {
 		super(props);
 		this.state = {
 			loaded: false,
+			messages: [],
 			showMore: true
 		}
 		
-		this.messages = [];
-		this.wsapi = WSAPI.getInstance();
 		this.page = 1;
+		this.__api = API.getInstance();
+		this.__wsapi = WSAPI.getInstance();
 	}
 	
-	__getMessages() {
-		API.getInstance().getDialogMessages({
+	__getMessages(page) {
+		return this.__api.getDialogMessages({
 			userID: this.props.id,
 			limit: this.props.limit,
-			page: this.page
-		})
-		.then((data) => {
-			this.messages = data.reverse();
-			this.setState({loaded: true});
-			
-			this.__scroll();
+			page: page
+		}).then(messages => {
+			let unreaded = messages.filter(
+				m => m.from.id == this.props.id && !m.read);
+				
+			this.readMessages(unreaded.map(m => m.id));
+			return messages.reverse()
 		})
 	}
 	
-	__scroll() {
+	__getMessage(mID) {
+		return this.__api.getMessage(mID).then(message => {
+			if(message.from.id == this.props.id) this.readMessages([mID]);
+			return message;
+		})
+	}
+	
+	__subscribe(userID, callback) {
+		let cUserID = this.__api.getCurrentUser().id;
+		this.__wsapi.subscribe("/dialog-" + cUserID + "-" + userID, callback);
+	}
+	
+	scroll() {
 		$(".dialog__messages").scrollTop(
 			$(".dialog__messages").prop('scrollHeight')
 		);
 	}
 	
+	readMessages(IDs) {
+		this.__api.readMessages({
+			ids: IDs.join(','),
+			is_read: '1'
+		})
+		.then(() => {
+			this.setState(Object.assign(this.state, {
+				// Mark read this messages
+				messages: this.state.messages.map(m => {
+					if(IDs.indexOf(m.id) != -1) m.read = true;
+					return m;
+				})
+			}));
+		});
+	}
+	
 	componentDidMount() {
-		this.wsapi.subscribe("/dialog-"+this.props.myID+"-"+this.props.id, (wdata) => {
-			if(wdata.event != "message:created") return;
-			
-			API.getInstance()
-				.getMessage(wdata.message_id)
-				.then((data) => {
-					this.messages.push(data);
-					this.forceUpdate();
-					
-					this.__scroll();
-				});
+		this.__getMessages(this.page).then(messages => {
+			this.setState(Object.assign(this.state, {
+				loaded: true,
+				showMore: messages.length >= this.props.limit,
+				messages: messages
+			}));
+			this.scroll();
 		});
 		
-		this.__getMessages();
+		this.__subscribe(this.props.id, event => {
+			if(event.event != "message:created") return;
+			this.__getMessage(event.message_id).then(message => {
+				this.setState(Object.assign(this.state, {
+					messages: this.state.messages.concat([message])
+				}));
+				this.scroll();
+			})
+		});
 	}
 	
 	onMore() {
 		this.page += 1;
-		
-		API.getInstance().getDialogMessages({
-			userID: this.props.id,
-			limit: this.props.limit,
-			page: this.page
+		this.__getMessages(this.page).then(messages => {
+			this.setState(Object.assign(this.state, {
+				showMore: messages.length >= this.props.limit,
+				messages: messages.concat(this.state.messages)
+			}));
 		})
-		.then((messages) => {
-			if(messages.length < this.props.limit) {
-				this.setState(Object.assign(this.state, {
-					showMore: false
-				}));
-			}
-			
-			this.messages = messages
-				.reverse()
-				.concat(this.messages);
-				
-			this.forceUpdate();
-		});
 	}
 	
 	render() {
 		return (
 			<div className="dialog__detail dialog__messages">
 				{this.state.loaded == false ? <Loader /> : null}
-				{this.state.showMore ? <ButtonMore count={this.props.limit} onClick={this.onMore.bind(this)} /> : null}
-				{this.messages.map((e, i) => <Message key={i} data={e} />)}
+				{this.state.showMore ? <ButtonMoreMessages count={this.props.limit} onClick={this.onMore.bind(this)} /> : null}
+				{this.state.messages.map((e, i) => <Message key={i} data={e} />)}
 			</div>
 		);
 	}

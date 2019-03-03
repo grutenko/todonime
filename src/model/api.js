@@ -166,6 +166,22 @@ export default class API {
 		})
 	}
 	
+	__catchCodes(xhr, errorThrown) {
+		// If server requrned HTTP Code 429 (Retry later) then repeat the
+		// request through 250 ms.
+		if(xhr.status == 429) {
+			return new Promise((resolve, reject) => {
+				setTimeout(() => {
+					this.__request(path, params, method, auth)
+						.then(
+							(data) => resolve(data),
+							(xhr, error) => reject(xhr, error)
+						)
+					},250)
+			});
+		}
+	}
+	
 	__request(path, params, method, auth) {
 		if(new Date().getTime() >= this.expriesIn) {
 			return this.__refresh().then((data) => {
@@ -184,15 +200,9 @@ export default class API {
 			params,
 			method,
 			auth
-		).catch((xhr, errorThrown) => {
-			// If server requrned HTTP Code 429 (Retry later) then repeat the
-			// request through 250 ms.
-			if(xhr.status == 429) {
-				return new Promise((resolve, reject) => {
-					setTimeout(() => this.__request(path, params, method, auth)
-						.then((data) => resolve(data), (xhr, error) => reject(xhr, error)), 250)
-				});
-			}
+		)
+		.catch((xhr, errorThrown) => {
+			return this.__catchCodes(xhr, errorThrown)
 		});
 	}
 	

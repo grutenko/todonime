@@ -338,3 +338,8 @@ div.filter {
 	font-size: 12px;
 	margin: auto 5px;
 }
+
+.main__button.more-messages {
+	width: calc(100% - 20px);
+	text-align: center;
+}
