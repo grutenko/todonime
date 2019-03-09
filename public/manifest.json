@@ -3,6 +3,7 @@
   "name": "Todonime",
   "short_name": "Todonime",
   "version": "0.1.0",
+  "options_page": "options.html",
   "description": "Todonime - многофункциональное расширение для Хикикомори.",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "icons": {

@@ -6,7 +6,8 @@ module.exports = {
 	mode: "development",
 	entry: {
 		content: "./src/index.js",
-		background: "./src/background.js"
+		background: "./src/entries/background.js",
+		settings: "./src/entries/settings.js"
 	},
 	output: {
 		path: path.resolve(__dirname, "public/js"),
@@ -25,9 +26,6 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new webpack.DefinePlugin({
-			'process.env.NODE_ENV': '"production"'
-		}),
 		new webpack.ProvidePlugin({
 			$: 'jquery',
 			jQuery: 'jquery'

@@ -3,12 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "compression-webpack-plugin": "^2.0.0",
     "dompurify": "^1.0.10",
     "jquery": "^3.3.1",
-    "react": "^16.8.3",
-    "react-dom": "^16.8.3",
-    "react-scripts": "2.1.5"
+    "react-vk": "^4.2.0"
   },
   "scripts": {
     "start": "webpack --mode development",
@@ -26,6 +23,10 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
+    "react-scripts": "2.1.5",
+    "compression-webpack-plugin": "^2.0.0",
     "webpack": "^4.29.5",
     "webpack-cli": "^3.2.3"
   }

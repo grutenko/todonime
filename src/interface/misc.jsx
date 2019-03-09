@@ -11,35 +11,24 @@ export const ButtonMoreMessages = ({count, onClick}) =>
 export const ButtonBack = ({text, onClick}) =>
 	<button className="main__button back__button" onClick={onClick}>{text}</button>
 	
-export class Search extends Component {
-	constructor(props) {
-		super(props);
-	}
-	
-	onUpdate(e) {
+export const Search = ({onUpdate}) => {
+	var onClick = (e) => {
 		let text = $(e.currentTarget).val().trim();
 		if(text == "") {
-			this.props.onUpdate("");
+			onUpdate("");
 			return;
 		}
 		
-		if(e.keyCode == 13 && text !== "") {
-			this.props.onUpdate(text);
-		}
-	}
+		if(e.keyCode == 13 && text !== "") onUpdate(text);
+	};
 	
-	render() {
-		return (
-			<div className="filter">
-				<input
-					onKeyUp={this.onUpdate.bind(this)}
-					type="text"
-					className="search__input"
-					placeholder="Поиск"/>
-			</div>
-		);
-	}
+	return (
+		<input onKeyUp={onClick} type="text" className="search__input" placeholder="Поиск"/>
+	);
 }
+
+export const Tools = ({children, ...props}) =>
+	<div className="filter" {...props}>{children}</div>
 
 
 export class Auth extends Component {

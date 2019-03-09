@@ -1,5 +1,5 @@
-import * as __API__ from "./model/api";
-import * as WS from "./model/webSocketApi";
+import * as __API__ from "../model/api";
+import * as WS from "../model/webSocketApi";
 
 const __INTERVAL__ = 10000;
 const __LIMIT__ = 3;
@@ -20,7 +20,7 @@ function showNotifications(notifies) {
 	notifies.forEach(notify => {
 		let props = {
 			type: "basic",
-			iconUrl: 'https://shikimori.org/'+notify.linked.image.x96,
+			iconUrl: 'https://shikimori.org/'+(notify.linked.image !== undefined ? notify.linked.image.x96 : ""),
 			title: notify.linked.name,
 			message: notify.html_body
 		};
@@ -88,7 +88,7 @@ __API__.authorize({
 	watching = animes;
 	getNews(__INTERVAL__, news => {
 	let unreadedOngoings = news.filter(
-		n => !n.read && !checkReaded(n));
+		n => !(n.read || checkReaded(n)));
 				
 		showNotifications(unreadedOngoings);
 	});

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 import API from '../model/api';
-import {Loader, ButtonMoreMessages, ButtonBack, Search} from './misc.jsx';
+import {Loader, ButtonMoreMessages, ButtonBack, Search, Tools} from './misc.jsx';
 import {WSAPI, authorize} from "../model/webSocketApi";
 import DOMPurify from 'dompurify';
 
@@ -50,23 +50,30 @@ export class Dialogs extends Component {
 		}));
 	}
 	
+	createDialog() {
+		
+	}
+	
 	onUpdateSearch(text) {
 		
 	}
 	
 	showDialogs() {
 		return (
-			<div className="dialogs__list">
-			{this.dialogs.map((e, i) => {
-				return <DialogPreview 
-						key={i}
-						user={e.target_user}
-						lastMessage={e.message}
-						len="80"
-						id={e.target_user.id}
-						onClick={this.onSetDetail.bind(this)}
-					/>
-			})}
+			<div>
+				<ToolBox onCreate={this.createDialog.bind(this)} />
+				<div className="dialogs__list">
+				{this.dialogs.map((e, i) => {
+					return <DialogPreview 
+							key={i}
+							user={e.target_user}
+							lastMessage={e.message}
+							len="80"
+							id={e.target_user.id}
+							onClick={this.onSetDetail.bind(this)}
+						/>
+				})}
+				</div>
 			</div>
 		);
 	}
@@ -74,7 +81,6 @@ export class Dialogs extends Component {
 	showMainList() {
 		return (
 			<div>
-				<Search onUpdate={this.onUpdateSearch.bind(this)} />
 				{this.state.loaded == false ? <Loader /> : null}
 				{this.showDialogs()}
 			</div>
@@ -97,27 +103,21 @@ export class Dialogs extends Component {
 	
 	render() {
 		return this.state.dialogID == null
-				? this.showMainList()
-				: this.showDetailDialog();
+					? this.showMainList()
+					: this.showDetailDialog();
 	}
 }
 
-class DetailDialog extends Component {
-	constructor(props) {
-		super(props);
-	}
-	
-	render() {
-		var user = API.getInstance().getCurrentUser();
-		return (
-			<div>
-				<ButtonBack onClick={this.props.onBack} text="К списку диалогов"/>
-				<UserPreview userData={this.props.userData} />
-				<Messages myID={user.id} id={this.props.id} limit={this.props.limit}/>
-				<AddMessageForm myID={user.id} dialogID={this.props.id} />
-			</div>
-		);
-	}
+const DetailDialog = ({onBack, userData, id, limit}) => {
+	var cUser = API.getInstance().getCurrentUser();
+	return (
+		<div>
+			<ButtonBack onClick={onBack} text="К списку диалогов"/>
+			<UserPreview userData={userData} />
+			<Messages myID={cUser.id} id={id} limit={limit}/>
+			<AddMessageForm myID={cUser.id} dialogID={id} />
+		</div>
+	);
 }
 
 const UserPreview = ({userData}) => {
@@ -132,6 +132,16 @@ const UserPreview = ({userData}) => {
 		</div>
 	);
 }
+
+const ToolBox = ({onCreate}) =>
+	<Tools style={{textAlign: "right"}}>
+		<img
+			onClick={onCreate}
+			className="tools__button"
+			src="/images/plus.svg"
+			alt="Создать диалог"
+		/>
+	</Tools>
 
 class Messages extends Component {
 	constructor(props) {

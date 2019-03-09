@@ -123,7 +123,7 @@ const TabsHeaderElement = ({name, id, onClick, active}) =>
 			{name}
 	</li>);
 	
-class Tab extends Component {
+export class Tab extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {

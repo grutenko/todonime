@@ -166,8 +166,8 @@ export default class API {
 		})
 	}
 	
-	__catchCodes(xhr, errorThrown) {
-		// If server requrned HTTP Code 429 (Retry later) then repeat the
+	__catchCodes(path, params, method, auth, xhr, errorThrown) {
+		// If server returned HTTP Code 429 (Retry later) then repeat the
 		// request through 250 ms.
 		if(xhr.status == 429) {
 			return new Promise((resolve, reject) => {
@@ -185,24 +185,17 @@ export default class API {
 	__request(path, params, method, auth) {
 		if(new Date().getTime() >= this.expriesIn) {
 			return this.__refresh().then((data) => {
-				return this.__request(
-					path,
-					params,
-					method,
-					auth
-				);
+				return this.__request(path, params, method, auth);
 			});
 		}
 		
 		return request(
-			this.token,
-			path,
-			params,
-			method,
-			auth
+			this.token, path, params, method, auth
 		)
 		.catch((xhr, errorThrown) => {
-			return this.__catchCodes(xhr, errorThrown)
+			return this.__catchCodes(
+				path, params, method, auth, xhr, errorThrown
+			);
 		});
 	}
 	
@@ -210,53 +203,149 @@ export default class API {
 		return this.currentUser;
 	}
 	
+	/*
+	user_id											Must be a number.
+	target_id										Must be a number.
+	target_type										Must be one of: Anime, Manga.
+	status											planned, watching, rewatching, completed, n_hold, dropped
+	page											ignored when user_id is set. 1 and 100000.
+	limit											1000 maximum. This field is ignored when user_id is set.
+													Must be a number between 1 and 100000.
+	*/
 	getUserRates(params) {
 		return this.__request("/v2/user_rates/", params, "GET", true);
 	}
 	
+	/*
+	
+	*/
 	whoame() {
 		return this.__request("/users/whoame/", {}, "GET", true);
 	}
 	
+	/*
+		limit							count messages for page
+		page							page number 1,2,...
+	*/
 	getDialogs() {
 		return this.__request("/dialogs/", {}, "GET", true);
 	}
 	
+	/*
+		userID							Dialog "to" user id.
+		limit							count messages for page
+		page							page number 1,2,...
+	*/
 	getDialogMessages(params) {
 		return this.__request("/dialogs/"+params.userID+"/", params, "GET", true);
 	}
 	
+	/*
+		messageID						Message id
+	*/
 	getMessage(messageID) {
 		return this.__request("/messages/"+messageID+"/", {}, "GET", true);
 	}
 	
+	/*
+		frontend						true|false
+		message							object {
+											body,
+											from_id
+											kind,
+											to_id
+										}
+	*/
 	addMessage(params) {
 		return this.__request("/messages", params, "POST", true);
 	}
 	
+	/*
+		ids								mark readed message ids 1,5345,...
+		is_read							string "0" or "1"
+	*/
 	readMessages(params) {
 		return this.__request("/messages/mark_read", params, "POST", true);
 	}
 	
+	/*
+		page							Number 1...100000
+		limit							Number maximum 50
+		order							[
+										id,
+										ranked,
+										kind,
+										popularity,
+										name,
+										aired_on,
+										episodes,
+										status,
+										random
+										]
+		kind							[
+										tv,
+										movie,
+										ova,
+										ona,
+										special,
+										music, 
+										tv_13, 
+										tv_24, 
+										tv_48
+										]
+		status							[
+										anons,
+										ongoing,
+										released
+										]
+		season							[
+										<season>_<year>,
+										<year>_<year>,
+										<year>
+										]
+		score							Minimal anime score
+		duration						[S(>10m), D(>30m), F(<30m)]
+		rating							[none, g, pg_13, r, r_plus, rx]
+		genre							List of genre ids separated by comma
+		studio							List of studio ids separated by comma
+		franchise						List of franchises separated by comma
+		sensored						true|false - false for hentai
+		mylist							[
+										planned,
+										watching,
+										rewatching,
+										completed,
+										on_hold,
+										dropped
+										]
+		ids								List of anime ids separated by comma
+		exclude_ids						List of anime ids separated by comma
+		search							Search phrase to filter animes by name
+	*/
 	getAnimes(params) {
 		return this.__request("/animes/", params, "GET", true);
 	}
 	
+	/*
+		page							Number 1...100000
+		limit							Number maximum 50
+		type							[
+											inbox,
+											private,
+											sent,
+											news,
+											notifications
+										]
+	*/
 	getUserNotifications(userID, params) {
 		return this.__request("/users/"+userID+"/messages", params);
 	}
 	
+	/*
+	
+	*/
 	getUserNotifiesCount(userID) {
 		return this.__request("/users/"+userID+"/unread_messages", {});
-	}
-	
-	getUserRates(userID, params) {
-		return this.__request("/users/"+userID+"/anime_rates", params, "GET", true)
-			.then((data) => {
-				return new Promise((resolve, reject) => {
-					resolve(data.filter(rate => rate.status == params.status));
-				});
-			});
 	}
 }
 

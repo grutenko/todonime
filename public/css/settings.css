@@ -1,0 +1,41 @@
+#root__container.settings .tabs {
+	margin: auto;
+	width: 400px;
+}
+
+.account__container {
+	padding: 5px;
+	border-radius: 5px;
+	background: #484440;
+	color: white;
+	min-height: 48px;
+}
+
+.account__container img {
+	border-radius: 5px;
+	float: left;
+}
+
+.account__container button {
+	margin: 5px;
+}
+
+.account__container span {
+	margin: 10px;
+	vertical-align: top;
+}
+
+.hettings__header {
+	padding: 10px;
+	font-size: 15px;
+}
+
+.account__container .loader__container {
+	width: auto;
+	height: auto;
+}
+
+.account__container .loader__container img {
+	width: 24px;
+	height: 24px;
+}
