@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 import API from '../model/api';
-import VK, {Share} from "react-vk";
 import {Window} from './windows.jsx';
 import {Loader, ButtonMore, Search, Tools} from './misc.jsx';
 
@@ -33,6 +32,17 @@ const __FULL_ANIME_EPISODES__ = [
 	{code: "tv_48", name: "<48 серий"}
 ];
 
+const __FULL_ANIME_ORDER__ = [
+	{code: "id", name: "ID"},
+	{code: "ranked", name: "рейтинг"},
+	{code: "kind", name: "тип"},
+	{code: "popularity", name: "популярность"},
+	{code: "name", name: "название"},
+	{code: "aired_on", name: "дата релиза"},
+	{code: "episodes", name: "количество эпизодов"},
+	{code: "status", name: "статус"}
+];
+
 export class Animes extends Component {
 	constructor(props) {
 		super(props);
@@ -41,11 +51,13 @@ export class Animes extends Component {
 			showMore: true,
 			animes: [],
 			filter: {},
+			sort: 'id',
 			search: null
 		};
 		
 		this.page = 0;
 		this.searchFlag = false;
+		this.containerID = "list__"+ Math.floor(Math.random() * 1000)
 		
 		this.__api = API.getInstance();
 		this.cUser = this.__api.getCurrentUser();
@@ -69,20 +81,25 @@ export class Animes extends Component {
 		})
 	}
 	
-	showAnimes(page, search, filter) {
+	showAnimes(page, search, filter, sortCode) {
 		var __animes = [];
 		filter = filter === undefined ? {} : filter;
+		let sort = sortCode === undefined ? {} : {order: sortCode};
 		
 		this.setState(Object.assign(this.state, {
 			loaded: false
 		}));
 		
-		this.__api.getAnimes(Object.assign({
+		let props = Object.assign({
 			page: page,
 			limit: this.props.limit,
 			mylist: this.props.type,
 			search: search || undefined
-		}, filter))
+		}, filter);
+		
+		props = Object.assign(props, sort);
+		
+		this.__api.getAnimes(props)
 		.then(animes => {
 			__animes = animes;
 			return this.__api.getUserRates({
@@ -103,12 +120,24 @@ export class Animes extends Component {
 	
 	componentDidMount() {
 		this.page += 1;
-		this.showAnimes(this.page, this.state.search, this.state.filter);
+		this.showAnimes(this.page, this.state.search, this.state.filter, this.state.sort);
+		
+		$("#"+this.containerID).scroll((e) => {
+			var animes = $(e.currentTarget);
+			
+			if(
+				animes.prop('scrollHeight') - animes.scrollTop() <= 600
+				&& this.state.showMore
+				&& this.state.loaded
+			){
+				this.onMoreAnimes();
+			}
+		});
 	}
 	
 	onMoreAnimes() {
 		this.page += 1;
-		this.showAnimes(this.page, this.state.search, this.state.filter);
+		this.showAnimes(this.page, this.state.search, this.state.filter, this.state.sort);
 	}
 	
 	onUpdateSearch(text) {
@@ -130,7 +159,7 @@ export class Animes extends Component {
 	
 	createMainList() {
 		return (
-			<div className="animes__list">
+			<div className="animes__list" id={this.containerID}>
 			{this.state.animes.length > 0
 				? this.state.animes.map((anime, i) => <Anime key={i} data={anime} />)
 				: (<div className="auth_required"> <p>Нет ни одного аниме :(</p></div>)
@@ -140,6 +169,20 @@ export class Animes extends Component {
 				: null
 			}
 			</div>
+		);
+	}
+	
+	sorting(code) {
+		this.page = 1;
+		this.setState(Object.assign(this.state, {
+			sort: code
+		}));
+		
+		this.showAnimes(
+			this.page,
+			this.state.search,
+			this.state.filter,
+			code
 		);
 	}
 	
@@ -166,7 +209,12 @@ export class Animes extends Component {
 			filter: props
 		}));
 		
-		this.showAnimes(this.page, this.state.search, props);
+		this.showAnimes(
+			this.page,
+			this.state.search,
+			props,
+			this.state.sort
+		);
 	}
 	
 	render() {
@@ -174,11 +222,95 @@ export class Animes extends Component {
 			<div>
 				<Tools>
 					<Search onUpdate={this.onUpdateSearch.bind(this)} />
-					<Filter onActive={this.filtered.bind(this)} />
+					<div style={{display: "inline-block", float: "right"}}>
+						<Sorting onActive={this.sorting.bind(this)}/>
+						<Filter onActive={this.filtered.bind(this)} />
+					</div>
 				</Tools>
 				{this.state.loaded == false ? <Loader /> : null}
 				{this.createMainList()}
 			</div>
+		);
+	}
+}
+
+class Sorting extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			open: false,
+			sortingData: null
+		}
+		
+		this.sort = __FULL_ANIME_ORDER__[0].code; //by ID
+	}
+	
+	onClickSorting() {
+		this.setState(Object.assign(this.state, {
+			open: !this.state.open
+		}))
+	}
+	
+	onSendSorting() {
+		this.setState(Object.assign(this.state, {
+			sortingData: this.sort
+		}));
+		
+		this.props.onActive(this.sort);
+		this.onClickSorting();
+	}
+	
+	onCancelSorting() {
+		this.sort = __FULL_ANIME_ORDER__[0].code;
+		this.onSendSorting();
+	}
+	
+	change(e) {
+		this.sort = e.currentTarget.value;
+	}
+	
+	createWindow() {
+		var windowStyles = {
+			right: "45px", 
+			top: "85px", 
+			width: "250px",
+			height: "100px"
+		};
+		
+		var contentStyles = {
+			height: "70px"
+		}
+		
+		return (
+			<Window
+				title="Сортировка"
+				contentStyles={contentStyles}
+				onClose={this.onClickSorting.bind(this)}
+				style={windowStyles}
+			>
+				<select style={{margin: "5px"}} onChange={this.change.bind(this)}>
+				{
+					__FULL_ANIME_ORDER__.map((o, i) =>
+						<option key={i} value={o.code}>{o.name}</option>)
+				}
+				</select>
+				<br /><button className="main__button" onClick={this.onSendSorting.bind(this)}>сортировать</button>
+				<button className="main__button" onClick={this.onCancelSorting.bind(this)}>сбросить</button>
+			</Window>
+		);
+	}
+	
+	render() {
+		return (
+			<span>
+				<img 
+					onClick={this.onClickSorting.bind(this)}
+					className="tools__button"
+					src="/images/sorting.svg"
+					alt="Сортировка"
+				/>
+				{this.state.open ? this.createWindow() : null}
+			</span>
 		);
 	}
 }
@@ -199,7 +331,7 @@ class Filter extends Component {
 		};
 	}
 	
-	onClick() {
+	onClickFilter() {
 		this.setState(Object.assign(this.state, {
 			open: this.state.open != true
 		}));
@@ -212,7 +344,7 @@ class Filter extends Component {
 		}
 	}
 	
-	onCancel() {
+	onCancelFilter() {
 		this.filter = {
 			type: [],
 			count_episodes: [],
@@ -225,7 +357,7 @@ class Filter extends Component {
 		this.props.onActive(null);
 	}
 	
-	onSend() {
+	onSendFilter() {
 		this.setState(Object.assign(this.state,{
 			open: false,
 			filterData: this.filter
@@ -252,7 +384,7 @@ class Filter extends Component {
 			<Window
 				title="Фильтр"
 				contentStyles={contentStyles}
-				onClose={this.onClick.bind(this)}
+				onClose={this.onClickFilter.bind(this)}
 				style={windowStyles}
 			>
 				<AnimeFilterTypes elems={this.filter.type} onUpdate={this.onUpdate__Up('type')}/>
@@ -263,26 +395,31 @@ class Filter extends Component {
 				<AnimeFilterRating elems={this.filter.rating} onUpdate={this.onUpdate__Up('rating')}/>
 				<AnimeFilterDuration value={this.filter.duration} onUpdate={this.onUpdate__Up('duration')}/>
 				
-				<br /><button className="main__button" onClick={this.onSend.bind(this)}>найти</button>
-				<button className="main__button" onClick={this.onCancel.bind(this)}>сбросить</button>
+				<br /><button className="main__button" onClick={this.onSendFilter.bind(this)}>найти</button>
+				<button className="main__button" onClick={this.onCancelFilter.bind(this)}>сбросить</button>
 			</Window>
 		);
 	}
 	
 	render() {
 		return (
-			<div style={{display: "inline-block", float: "right"}}>
+			<span>
 				{this.state.filterData != null
-					? <button className="main__button clear-filter" onClick={this.onCancel.bind(this)}>Сбросить</button>
+					? <button
+						className="main__button clear-filter"
+						onClick={this.onCancelFilter.bind(this)}
+					>
+						Сбросить
+					</button>
 					: null}
 				{this.state.open ? this.createFilter() : null}
 				<img 
-					onClick={this.onClick.bind(this)}
+					onClick={this.onClickFilter.bind(this)}
 					className="tools__button"
 					src="/images/filter.svg"
 					alt="Фильтр"
 				/>
-			</div>
+			</span>
 		);
 	}
 }
@@ -449,15 +586,42 @@ const Anime = ({data}) => {
 	return (
 		<div className="anime__container" data-id={data.id}>
 			<Poster imageSrc={data.image.x96} animeLink={data.url} />
-			<a href={"https://shikimori.org" + data.url} target="_blank">{data.russian}</a><br/>
+			<a
+				className="title"
+				href={"https://shikimori.org" + data.url}
+				title={data.russian}
+				target="_blank"
+			>
+				{data.russian}
+			</a>
+			<AnimeStatus status={data.status} />
+			<br/>
 			<AnimeMarkers data={data} />
 			<div className="anime__footer">
-				<PlayButton url={data.url} watched={data.watched} full={data.episodes} />
-				<WatchedSeries watched={data.watched} full={data.episodes} />
+				<PlayButton
+					url={data.url}
+					watched={data.watched}
+					full={data.episodes}
+				/>
+				<WatchedSeries
+					watched={data.watched}
+					full={data.episodes}
+				/>
 				<SearchGoogleButton name={data.russian} />
 			</div>
 		</div>
 	);
+}
+
+const AnimeStatus = ({status}) => {
+	var ruStatus = "релиз";
+	switch(status) {
+		case "released": ruStatus = "релиз"; break;
+		case "ongoing": ruStatus = "онгоинг"; break;
+		case "anons": ruStatus = "анонс"; break;
+	}
+	
+	return (<div className={"anime__status " + status}>{ruStatus}</div>);
 }
 
 const Poster = ({imageSrc, animeLink}) =>

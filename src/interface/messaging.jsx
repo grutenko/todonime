@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import API from '../model/api';
 import {Loader, ButtonMoreMessages, ButtonBack, Search, Tools} from './misc.jsx';
 import {WSAPI, authorize} from "../model/webSocketApi";
+import {Window} from "./windows.jsx";
 import DOMPurify from 'dompurify';
 
 export class Dialogs extends Component {
@@ -10,7 +11,8 @@ export class Dialogs extends Component {
 		super(props);
 		this.state = {
 			loaded: false,
-			dialogID: null
+			dialogID: null,
+			updateListAfterDetail: false
 		};
 		
 		
@@ -35,33 +37,36 @@ export class Dialogs extends Component {
 		});
 	}
 	
-	onSetDetail(id) {
-		let targetUser;
+	__searchTarget(userID) {
 		for(let i in this.dialogs) {
-			if(this.dialogs[i].target_user.id == id) {
-				targetUser = this.dialogs[i].target_user;
-				break;
-			}
+			if(this.dialogs[i].target_user.id != userID) continue;
+			return this.dialogs[i].target_user;
 		}
+	}
+	
+	onSetDetail(id, user) {
+		let targetUser = (user === undefined
+				? this.__searchTarget(id)
+				: user);
 		
 		this.setState(Object.assign(this.state, {
 			dialogID: id,
-			targetUser: targetUser
+			targetUser: targetUser,
+			updateListAfterDetail: user !== undefined 
 		}));
 	}
 	
-	createDialog() {
-		
-	}
-	
-	onUpdateSearch(text) {
-		
+	createDialog( user ) {
+		this.onSetDetail(user.id, user);
 	}
 	
 	showDialogs() {
 		return (
 			<div>
-				<ToolBox onCreate={this.createDialog.bind(this)} />
+				<ToolBox
+					onCreate={this.createDialog.bind(this)}
+					dialogs={this.dialogs}
+				/>
 				<div className="dialogs__list">
 				{this.dialogs.map((e, i) => {
 					return <DialogPreview 
@@ -88,9 +93,18 @@ export class Dialogs extends Component {
 	}
 	
 	onBack() {
+		var mustUpdateList = this.state.updateListAfterDetail;
+		
 		this.setState(Object.assign(this.state, {
-			dialogID: null
+			dialogID: null,
+			updateListAfterDetail: false
 		}));
+		
+		/*
+		If mustUpdateList == true then we should update from server list of dialogs.
+		For showing new dialogs
+		*/
+		if(mustUpdateList) this.componentDidMount();
 	}
 	
 	showDetailDialog() {
@@ -133,15 +147,123 @@ const UserPreview = ({userData}) => {
 	);
 }
 
-const ToolBox = ({onCreate}) =>
+const ToolBox = ({onCreate, dialogs}) =>
 	<Tools style={{textAlign: "right"}}>
-		<img
-			onClick={onCreate}
-			className="tools__button"
-			src="/images/plus.svg"
-			alt="Создать диалог"
-		/>
+		<DialogCreator dialogs={dialogs} onCreate={onCreate}/>
 	</Tools>
+	
+class DialogCreator extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			open: false,
+			userID: null
+		};
+	}
+	
+	onChose(user) {
+		this.setState(Object.assign(this.state, {
+			userID: user.id
+		}));
+		
+		this.props.onCreate(user);
+	}
+	
+	createWindow() {
+		var windowStyles = {
+			right: "5px", 
+			top: "85px", 
+			width: "250px",
+			height: "100px"
+		};
+		
+		return (
+			<Window
+				title="Новый диалог"
+				contentStyles={{}}
+				onClose={this.onClick.bind(this)}
+				style={windowStyles}
+			>
+				<FriendsListMinify
+					onChose={this.onChose.bind(this)}
+					dialogs={this.props.dialogs}
+				/>
+			</Window>
+		);
+	}
+	
+	onClick() {
+		this.setState(Object.assign(this.state, {
+			open: !this.state.open
+		}))
+	}
+	
+	render() {
+		return (
+			<span>
+				<img
+					onClick={this.onClick.bind(this)}
+					className="tools__button"
+					src="/images/plus.svg"
+					alt="Создать диалог"
+				/>
+				{this.state.open ? this.createWindow() : null}
+			</span>
+		);
+	}
+}
+
+class FriendsListMinify extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			loaded: false,
+			users: []
+		}
+		
+		this.__api = API.getInstance();
+		this.cUser = this.__api.getCurrentUser();
+	}
+	
+	componentDidMount() {
+		var dialogIDs = this.props.dialogs.map(d => d.target_user.id); // Existing for this user dialogs
+		this.__api.getUserFriends(this.cUser.id, {})
+		.then(users => {
+			this.setState({
+				loaded: true,
+				users: users.filter(u => dialogIDs.indexOf(u.id) == -1)
+			});
+			
+			$('.users__list').one('click', '.users__list--user', (e) => {
+				var users = this.state.users;
+				var cDialogID = $(e.currentTarget).attr('data-id');
+				
+				for(let i in users) {
+					if(users[i].id != cDialogID)
+						continue;
+					
+					this.props.onChose(users[i]);
+					break;
+				}
+			})
+		});
+	}
+	
+	render() {
+		return (
+			<div className="users__list minify">
+			{this.state.loaded == false ? <Loader /> : null}
+			{this.state.users.map((u, i) => <MUser key={i} data={u} />)}
+			</div>
+		);
+	}
+}
+
+const MUser = ({data}) =>
+	<div className="users__list--user" data-id={data.id}>
+		<span>{data.nickname}</span>
+		<img src={data.image.x32} className="users__list--avatar"/>
+	</div>
 
 class Messages extends Component {
 	constructor(props) {
@@ -239,8 +361,20 @@ class Messages extends Component {
 	render() {
 		return (
 			<div className="dialog__detail dialog__messages">
-				{this.state.loaded == false ? <Loader /> : null}
-				{this.state.showMore ? <ButtonMoreMessages count={this.props.limit} onClick={this.onMore.bind(this)} /> : null}
+				{this.state.loaded == false
+					? <Loader />
+					: null}
+				{this.state.showMore ?
+					<ButtonMoreMessages
+						count={this.props.limit}
+						onClick={this.onMore.bind(this)}
+					/>
+					: null}
+				{this.state.messages.length == 0
+					? <div className="auth_required">
+						Напишите первое сообщение что бы создать диалог
+					  </div>
+					: null}
 				{this.state.messages.map((e, i) => <Message key={i} data={e} />)}
 			</div>
 		);
@@ -335,6 +469,14 @@ const DialogPreview = ({user, lastMessage, id, onClick, len}) => {
 			<img className="user__avatar" src={user.image.x80}/>
 			<a className="dialog__name">{user.nickname}</a>
 			<p>{lastMessage.body}</p>
+		</div>
+	);
+}
+
+const DialogToolbox = ({onDelete, data}) => {
+	return (
+		<div className="dialog__toolbox">
+			<img src="/images/cancel.svg" onClick={() => onDelete(data.id)}/>
 		</div>
 	);
 }

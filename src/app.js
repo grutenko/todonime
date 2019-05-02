@@ -5,9 +5,9 @@ import Tabs, {MailTab, PlannedTab, WatchingTab, BookmarksTab} from "./components
 export const App = (props) =>
 	<div className="app__container">
 		<Tabs activeTab="2">
-			<MailTab name="Сообщения"/>
+			<MailTab name="Почта"/>
 			<PlannedTab name="Запланированные"/>
 			<WatchingTab name="Смотрю"/>
-			<BookmarksTab name="Новости"/>
+			<BookmarksTab name="Календарь"/>
 		</Tabs>
 	</div>

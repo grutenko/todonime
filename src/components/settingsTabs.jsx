@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 
 import {Tab} from './tabs.jsx';
-import {Account} from '../interface/settings.jsx';
+import {Account, TabSelector} from '../interface/settings.jsx';
 
 export class GeneralTab extends Tab {
 	constructor(props) {
@@ -12,7 +12,8 @@ export class GeneralTab extends Tab {
 	render() {
 		return (
 			<div className="tab general-tab">
-			
+				<div className="hettings__header">Активная вкладка</div>
+				<TabSelector />
 			</div>
 		);
 	}

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 import API, {authorize} from '../model/api';
 import {Loader} from './misc.jsx';
+import {setOption, onStorage} from '../model/settings.js';
 
 export class Account extends Component {
 	constructor(props) {
@@ -23,9 +24,7 @@ export class Account extends Component {
 		}
 		this.__auth();
 		
-		addEventListener('storage', (e) => {
-			if(!e.key == 'shikimori_session') return;
-			
+		onStorage('shikimori_session', (e) => {
 			if(e.newValue !== undefined && !this.state.authed) {
 				this.__auth();
 			} else {
@@ -86,5 +85,42 @@ export class Account extends Component {
 				: this.authorizate()}
 			</div>
 		)
+	}
+}
+
+export class TabSelector extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			active: localStorage.active_tab || 2
+		};
+		
+		this.tabs = [
+			'Почта',
+			'Запланированные',
+			'Смотрю',
+			'Календарь'
+		];
+	}
+	
+	onSelect(e) {
+		document.dispatchEvent(
+			new Event('settingsUpdate')
+		);
+	}
+	
+	render() {
+		return (
+			<select className="tab-selector" onChange={this.onSelect.bind(this)}>
+				{this.tabs.map((e, i) => 
+					<option
+						key={i}
+						value={i}
+						selected={i == this.state.active ? "selected" : ""}
+					>
+						{e}
+					</option>)}
+			</select>
+		);
 	}
 }

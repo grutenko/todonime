@@ -129,6 +129,14 @@ export class Tab extends Component {
 		this.state = {
 			active:false
 		};
+		
+		/**
+		 * If session data in storage did update (From settings maybe)
+		 * Then update all tabs.
+		 */
+		addEventListener('storage', (e) => {
+			if(e.key == 'shikimori_session') this.forceUpdate();
+		});
 	}
 	
 	componentDidUpdate(prevProps) {

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Todonime",
   "short_name": "Todonime",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "options_page": "options.html",
   "description": "Todonime - многофункциональное расширение для Хикикомори.",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
@@ -13,7 +13,12 @@
   },
   "content_scripts": [
     {
-      "matches": [ "*://*/*" ],
+      "matches": [
+      	"*://*.shikimori.org/*",
+      	"https://maxcdn.bootstrapcdn.com/*",
+      	"https://fonts.gstatic.com/*",
+      	"https://img.icons8.com/"
+      ],
       "js": [ "js/content.js" ]
     }
   ],
@@ -23,7 +28,6 @@
   "permissions": [
 	"notifications",
   	"identity",
-  	"tabs",
   	"activeTab",
   	"contextMenus",
   	"storage",

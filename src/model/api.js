@@ -64,7 +64,8 @@ export function instance() {
 export function authorize({responseType, redirectUri}) {
 	return new Promise((resolve, reject) => {
 		if(localStorage.shikimori_session !== undefined) {
-			instance().then(api => resolve, error => reject(error));
+			instance().then(api => resolve(api), error => reject(error));
+			return;
 		}
 	
 		var redirectRgx = new RegExp(redirectUri + '[#\?](.*)');
@@ -79,7 +80,7 @@ export function authorize({responseType, redirectUri}) {
        		
        	chrome.identity.launchWebAuthFlow(options, (Uri) => {
        		if(chrome.runtime.lastError) {
-				reject(new Error(chrome.runtime.lastError));
+				reject(new Error(chrome.runtime.lastError.message));
 				return;
 			}
 			
@@ -183,6 +184,8 @@ export default class API {
 	}
 	
 	__request(path, params, method, auth) {
+		params = params || {};
+		
 		if(new Date().getTime() >= this.expriesIn) {
 			return this.__refresh().then((data) => {
 				return this.__request(path, params, method, auth);
@@ -227,8 +230,15 @@ export default class API {
 		limit							count messages for page
 		page							page number 1,2,...
 	*/
-	getDialogs() {
-		return this.__request("/dialogs/", {}, "GET", true);
+	getDialogs(props) {
+		return this.__request("/dialogs/", props, "GET", true);
+	}
+	
+	/*
+	
+	*/
+	deleteDialog(ID) {
+		return this.__request("/dialogs/"+ID, {}, "DELETE", true);
 	}
 	
 	/*
@@ -346,6 +356,21 @@ export default class API {
 	*/
 	getUserNotifiesCount(userID) {
 		return this.__request("/users/"+userID+"/unread_messages", {});
+	}
+		
+	/*
+		page 							Must be a number between 1 and 100000.
+		limit							100 maximum
+	*/
+	getUserHistory(userID, params) {
+		return this.__request("/user/"+userID+"/history", params);
+	}
+	
+	/*
+	
+	*/
+	getUserFriends(userID) {
+		return this.__request("/users/"+userID+"/friends", {});
 	}
 }
 

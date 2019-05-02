@@ -40,17 +40,7 @@ export class Auth extends Component {
 	}
 	
 	onClick() {
-		authorize({
-			responseType: "code",
-			redirectUri: chrome.identity.getRedirectURL('provider_cb')
-		}).then((api) => {
-			this.setState({auth: true});
-			this.props.onAuth();
-			
-			window.sAPI = api;
-		}, (error) => {
-			console.log(error);
-		});
+		chrome.tabs.create({url: '/options.html'});
 	}
 	
 	render() {

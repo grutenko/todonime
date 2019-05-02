@@ -55,7 +55,7 @@ ul.tabs__header {
 	padding: 0;
 	display: flex;
 	width: 100%;
-	backhround: #424848;
+	background: #424848;
 }
 
 ul.tabs__header li {
@@ -131,6 +131,7 @@ button.main__button:hover {
 
 .animes__list {
 	overflow-y: auto;
+	overflow-x: hidden;
 	height:  510px;
 }
 
@@ -139,6 +140,7 @@ button.main__button:hover {
 	min-height: 88px;
 	background: #fff;
 	margin: 5px;
+	overflow: hidden;
 }
 
 .anime__container img {
@@ -146,10 +148,35 @@ button.main__button:hover {
 	border-radius: 5px;
 }
 
-.anime__container a:link {
-	margin-left: 5px;
-	vertical-align: baseline;
+.anime__container a.title {
+	white-space: nowrap; /* Запрещаем перенос строк */
+    overflow: hidden; /* Обрезаем все, что не помещается в область */
+    padding: 5px; /* Поля вокруг текста */
+    text-overflow: ellipsis;
+	width: 240px;
+	display: inline-block;
 }
+
+.anime__status {
+	float: right;
+	white-space: nowrap;
+    overflow: hidden;
+    padding: 2px;
+	color: #424848;
+	display: inline-block;
+	background: #89ff78;
+	color: white;
+}
+
+.anime__status.ongoing {
+	background: blue;
+}
+
+.anime__status.released {
+	background: green;
+}
+	background: rgb(72, 72, 105);
+/*  */}
 
 .anime__footer {
 	padding-left: 10px;
@@ -203,7 +230,7 @@ div.filter {
 	padding: 10px;
 	border: none;
 	background: #D7EEBA;
-	width: 230px;
+	width: 200px;
 	font-size: 13px;
 }
 
@@ -211,9 +238,9 @@ div.filter {
 	outline: none;
 }
 
-.dialog__list {
+.dialogs__list {
 	overflow-y: auto;
-	height:  485px;
+	height:  500px;
 }
 
 .dialog__container {
@@ -258,7 +285,7 @@ div.filter {
 .dialog__messages {
 	left: 0; right: 0;
 	text-align: right;
-	max-height: 404px;
+	max-height: 434px;
 	overflow-y: auto;
 	background: white;
 }
@@ -466,4 +493,36 @@ div.filter {
 .clear-filter {
 	vertical-align: top;
 	padding: 5px !important;
+}
+
+.users__list  {
+	text-align: left;
+	padding: 5px;
+	overflow: auto;
+	max-height: 245px;
+}
+
+.users__list--user {
+	min-height: 32px;
+	padding: 5px;
+	border-radius: 5px;
+	margin: 2px;
+	transition: 250ms;
+	cursor: default;
+}
+
+.users__list--user:hover {
+	background-color: #A7BE8A;
+}
+
+.users__list--user span {
+	vertical-align: center;
+	margin: 5px;
+}
+
+img.users__list--avatar {
+	border-radius: 5px;
+	float: left;
+	width: 32px;
+	height: 32px;
 }
