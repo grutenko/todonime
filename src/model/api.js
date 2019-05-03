@@ -1,5 +1,5 @@
-export const clientID = "b9802c42994f52a5b98aaa7f170886b8863ab49fdd934122ffdb7966ec2207c7";
-export const clientSecret = "43c19a22704dfacc8b4b81f1f42720a5a2bda8d933a063f6700f02b7e6590f5e";
+export const clientID = process.env.CLIENT_ID;
+export const clientSecret = process.env.CLIENT_SECRET;
 
 function rand() {
 	return Math.floor(Math.random() * 1000);

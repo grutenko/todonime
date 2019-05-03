@@ -1,6 +1,7 @@
 const path = require("path");
 const webpack = require('webpack');
 const CompressionPlugin = require("compression-webpack-plugin");
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
 	mode: "development",
@@ -29,7 +30,11 @@ module.exports = {
 		new webpack.ProvidePlugin({
 			$: 'jquery',
 			jQuery: 'jquery'
+		}),
+		new Dotenv({
+			path: process.env.mode == "production"
+				? "./.env.production"
+				: "./.env.development"
 		})
-		
 	],
 };

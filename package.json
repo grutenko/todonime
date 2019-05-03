@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "dompurify": "^1.0.10",
+    "dotenv-webpack": "^1.7.0",
     "jquery": "^3.3.1",
     "react-vk": "^4.2.0"
   },
@@ -23,11 +24,11 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "compression-webpack-plugin": "^2.0.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
     "react-scripts": "2.1.5",
-    "compression-webpack-plugin": "^2.0.0",
-    "webpack": "^4.29.5",
+    "webpack": "^4.30.0",
     "webpack-cli": "^3.2.3"
   }
 }
