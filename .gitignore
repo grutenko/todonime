@@ -19,6 +19,7 @@
 .env.development
 .env.test.local
 .env.production
+/todonime.sublime-workspace
 
 npm-debug.log*
 yarn-debug.log*
