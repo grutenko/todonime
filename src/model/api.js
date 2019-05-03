@@ -63,7 +63,7 @@ export function instance() {
 
 export function authorize({responseType, redirectUri}) {
 	return new Promise((resolve, reject) => {
-		if(localStorage.shikimori_session !== undefined) {
+		if(localStorage.shikimori_session != null) {
 			instance().then(api => resolve(api), error => reject(error));
 			return;
 		}
