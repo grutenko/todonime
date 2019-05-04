@@ -63,7 +63,6 @@ function showNotify(ID, props, callback) {
 	
 function getNews(handler) {
 	__api.getUserNotifications(__cUser.id, {
-		limit: __LIMIT__,
 		type: "news"
 	})
 	.then( news => handler(news.filter(n => !n.read)) );
