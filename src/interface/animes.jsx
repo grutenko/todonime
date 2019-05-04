@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 import API from '../model/api';
 import {Window} from './windows.jsx';
-import {Loader, ButtonMore, Search, Tools} from './misc.jsx';
+import {Loader, ButtonMore, Search, Tools, Favorite} from './misc.jsx';
+import * as Fvr from '../model/favorites';
 
 const __FULL_ANIME_TYPES__ = [
 	{code: "tv", name: "Сериал"},
@@ -133,6 +134,14 @@ export class Animes extends Component {
 				this.onMoreAnimes();
 			}
 		});
+
+		this.favEvent = document.addEventListener('favorites', () => {
+			this.forceUpdate();
+		})
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('favorites');
 	}
 	
 	onMoreAnimes() {
@@ -156,12 +165,24 @@ export class Animes extends Component {
 		}))
 		this.showAnimes(this.page, text, this.state.filter);
 	}
+
+	createFavorites(animes) {
+		return (<div>
+			{animes.length > 0 ? <div style={{padding: "10px"}}>Закладки</div> : null }
+			{animes.map((anime, i) => <Anime key={i} data={anime} favoritable="true" />)}
+			{animes.length > 0 ? <hr/> : null}
+		</div>);
+	}
 	
 	createMainList() {
+		var fvrAnimes = this.state.animes.filter(anime => Fvr.exists(anime.id));
+		var unfvrAnimes = this.state.animes.filter(anime => !Fvr.exists(anime.id));
+
 		return (
 			<div className="animes__list" id={this.containerID}>
+			{this.props.showFavorites == "true" ? this.createFavorites(fvrAnimes) : null}
 			{this.state.animes.length > 0
-				? this.state.animes.map((anime, i) => <Anime key={i} data={anime} />)
+				? unfvrAnimes.map((anime, i) => <Anime key={i} data={anime} favoritable={this.props.showFavorites}/>)
 				: (<div className="auth_required"> <p>Нет ни одного аниме :(</p></div>)
 			}
 			{this.state.showMore
@@ -582,7 +603,7 @@ const AnimeFilterType = ({type, onRemove}) => {
 		</div>);
 }
 
-const Anime = ({data}) => {
+const Anime = ({data, favoritable}) => {
 	return (
 		<div className="anime__container" data-id={data.id}>
 			<Poster imageSrc={data.image.x96} animeLink={data.url} />
@@ -594,6 +615,7 @@ const Anime = ({data}) => {
 			>
 				{data.russian}
 			</a>
+			{favoritable == "true" ? <Favorite id={data.id}/> : null}
 			<AnimeStatus status={data.status} />
 			<br/>
 			<AnimeMarkers data={data} />

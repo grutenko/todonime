@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 import API, {authorize} from '../model/api';
+import * as Fvr from '../model/favorites';
 
 export const ButtonMore = ({count, onClick}) =>
 	<button className="main__button more-animes" onClick={onClick}>{"Еще " +count}</button>
@@ -57,3 +58,31 @@ export const Loader = ({text}) =>
 	<div className="loader__container">
 		<img src="images/loader-main.svg" />
 	</div>
+
+export class Favorite extends Component {
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			active: Fvr.exists(props.id)
+		}
+	}
+
+	componentDidMount() {
+		document.addEventListener('favorites', (e) => {
+			if(e.detail.id == this.props.id)
+				this.setState({active: e.detail.action == "add"});
+		})
+	}
+
+	onClick() {
+		if(this.state.active) Fvr.unset(this.props.id);
+			else Fvr.add(this.props.id);
+	}
+
+	render() {
+		return this.state.active
+			? <span className="favorite" onClick={this.onClick.bind(this)}>&#9733;</span>
+			: <span className="favorite" onClick={this.onClick.bind(this)}>&#9734;</span>
+	}
+}

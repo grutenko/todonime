@@ -37,6 +37,18 @@ body {
 	display: table-row;
 }
 
+hr {
+	border: none;
+	height: 1px;
+	background: #474747;
+	margin: 15px 5px 5px 5px;
+}
+
+.hettings__header {
+	padding: 10px;
+	font-size: 15px;
+}
+
 .col {
 	display: table-cell;
 	vertical-align: middle;
@@ -62,6 +74,8 @@ ul.tabs__header li {
 	list-style-type: none;
 	padding: 13px;
 	display: block;
+	flex: 1;
+	text-align: center;
 	transition: 250ms;
 	background: #424848;
 	color: #D7EEBA;
@@ -153,7 +167,7 @@ button.main__button:hover {
     overflow: hidden; /* Обрезаем все, что не помещается в область */
     padding: 5px; /* Поля вокруг текста */
     text-overflow: ellipsis;
-	width: 240px;
+	width: 233px;
 	display: inline-block;
 }
 
@@ -175,8 +189,6 @@ button.main__button:hover {
 .anime__status.released {
 	background: green;
 }
-	background: rgb(72, 72, 105);
-/*  */}
 
 .anime__footer {
 	padding-left: 10px;
@@ -190,10 +202,11 @@ button.main__button:hover {
 
 .anime__footer  .anime__manage {
 	border-radius: 5px;
+	background: #A7BE8A;
 }
 
 .anime__footer  .anime__manage:hover {
-	background: #A7BE8A;
+	background: white;
 }
 
 .anime__manage.delete:hover {
@@ -205,7 +218,8 @@ button.main__button:hover {
 }
 
 img.anime__poster {
-	width: 57px;
+	width: 60px;
+	min-height: 100px;
 }
 
 .anime__markers-container {
@@ -525,4 +539,13 @@ img.users__list--avatar {
 	float: left;
 	width: 32px;
 	height: 32px;
+}
+
+.favorite {
+	font-size: 24px;
+	line-height: 0.9;
+	text-shadow: 0px 0px 5px rgba(136,206,93,0.88);
+	color: green;
+	vertical-align: top;
+	cursor: pointer;
 }
