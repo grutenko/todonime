@@ -4,7 +4,6 @@ import API from '../model/api';
 
 import {Auth} from "../interface/misc.jsx";
 import {Animes} from "../interface/animes.jsx";
-import {Dialogs} from "../interface/messaging.jsx";
 
 export default class Tabs extends Component {
 	constructor(props) {
@@ -157,17 +156,17 @@ export class Tab extends Component {
 Tab.defaultProps = {
 	active: false
 };
-	
-export class MailTab extends Tab {
-	constructor(props) {		
+
+export class DroppedTab extends Tab {
+	constructor(props) {
 		super(props);
 	}
-	
+
 	render() {
 		return (
-			<div className="tab mail_tab">
+			<div className="tab dropped_tab">
 			{API.isAuth()
-				? <Dialogs limit="20" search={null} />
+				? <Animes type="dropped" limit="20" search={null}/>
 				: this.__auth()
 			}
 			</div>
@@ -184,7 +183,7 @@ export class PlannedTab extends Tab {
 		return (
 			<div className="tab planned_tab">
 			{API.isAuth()
-				? <Animes type="planned" limit="20" search={null}/>
+				? <Animes type="planned" limit="50" search={null}/>
 				: this.__auth()
 			}
 			</div>
@@ -201,7 +200,7 @@ export class WatchingTab extends Tab {
 		return (
 			<div className="tab watching_tab">
 			{API.isAuth()
-				? <Animes type="watching" limit="20" search={null}/>
+				? <Animes type="watching" limit="40" showFavorites="true" search={null}/>
 				: this.__auth()
 			}
 			</div>
