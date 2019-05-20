@@ -24,7 +24,6 @@ export default class Tab extends Component {
 			+ (this.state.active ? " active" : "");
 
 		var authRequired = this.props.children.props.auth;
-		console.log(API.isAuth());
 
 		return (<div className={tabClass}>
 			{authRequired != undefined && authRequired == "true" && !API.isAuth()
