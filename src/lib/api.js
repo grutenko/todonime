@@ -1,10 +1,16 @@
 export const clientID = process.env.CLIENT_ID;
 export const clientSecret = process.env.CLIENT_SECRET;
 
+/*
+
+*/
 function rand() {
 	return Math.floor(Math.random() * 1000);
 }
 
+/*
+
+*/
 function parseRedirectFragment(fragment) {
 	var values = {};	
 	fragment.split(/&/).forEach(function(pair) {
@@ -14,7 +20,10 @@ function parseRedirectFragment(fragment) {
 		
 	return values;
 }
-       	
+
+/*
+
+*/     	
 function getAuthorizationToken(code, redirectUri) {
 	var params = {
 		grant_type: "authorization_code",
@@ -26,7 +35,7 @@ function getAuthorizationToken(code, redirectUri) {
 	
 	return new Promise((resolve, reject) => {
 		$.ajax({
-			url:"https://shikimori.org/oauth/token",
+			url:"https://shikimori.one/oauth/token",
 		    type:"POST",
 		    data: params,
 		    dataType:"json"
@@ -41,6 +50,9 @@ function getAuthorizationToken(code, redirectUri) {
     });
 }
 
+/*
+
+*/
 export function instance() {
 	if(localStorage.shikimori_session === undefined) {
 		return new Promise((resolve, reject) => {
@@ -61,6 +73,9 @@ export function instance() {
 	});
 }
 
+/*
+
+*/
 export function authorize({responseType, redirectUri}) {
 	return new Promise((resolve, reject) => {
 		if(localStorage.shikimori_session != null) {
@@ -72,7 +87,7 @@ export function authorize({responseType, redirectUri}) {
 		
 		var options = {
 		    'interactive': true,
-		    'url': "https://shikimori.org/oauth/authorize"+
+		    'url': "https://shikimori.one/oauth/authorize"+
 		           '?client_id=' + clientID +
 		           '&redirect_uri=' + encodeURIComponent(redirectUri) +
 		           '&response_type=' + responseType
@@ -97,6 +112,9 @@ export function authorize({responseType, redirectUri}) {
 	});
 };
 
+/*
+
+*/
 function refresh(clientID, clientSecret, refreshToken) {
 	var params = {
 		grant_type: "refresh_token",
@@ -107,7 +125,7 @@ function refresh(clientID, clientSecret, refreshToken) {
 	
 	return new Promise((resolve, reject) => {
 		$.ajax({
-			url: "https://shikimori.org/oauth/token",
+			url: "https://shikimori.one/oauth/token",
 			type: "POST",
 			data: params,
 			dataType: "json"
@@ -116,6 +134,9 @@ function refresh(clientID, clientSecret, refreshToken) {
 	});
 }
 
+/*
+
+*/
 function request(token, path, params, method, auth) {
 	return new Promise((resolve, reject) => {
 		method = (method === undefined ? "GET" : method);
@@ -130,7 +151,7 @@ function request(token, path, params, method, auth) {
 			: Object.assign(params, {rand: rand()});
 			
 		$.ajax({
-			url:"https://shikimori.org/api" + path,
+			url:"https://shikimori.one/api" + path,
 			type: method,
 			headers: headers,
 			contentType: "application/json; charset=utf-8",
@@ -143,6 +164,9 @@ function request(token, path, params, method, auth) {
 	});
 }
 
+/*
+
+*/
 export default class API {
 	constructor( params, currentUser ) {
 		this.token = params.access_token;
@@ -154,6 +178,9 @@ export default class API {
 		this.currentUser = currentUser;
 	}
 	
+	/*
+
+	*/
 	__refresh() {
 		return refresh(
 			this.clientID,
@@ -167,6 +194,9 @@ export default class API {
 		})
 	}
 	
+	/*
+
+	*/
 	__catchCodes(path, params, method, auth, xhr, errorThrown) {
 		// If server returned HTTP Code 429 (Retry later) then repeat the
 		// request through 250 ms.
@@ -183,6 +213,9 @@ export default class API {
 		}
 	}
 	
+	/*
+
+	*/
 	__request(path, params, method, auth) {
 		params = params || {};
 		
@@ -202,6 +235,9 @@ export default class API {
 		});
 	}
 	
+	/*
+
+	*/
 	getCurrentUser() {
 		return this.currentUser;
 	}
@@ -335,6 +371,10 @@ export default class API {
 	getAnimes(params) {
 		return this.__request("/animes/", params, "GET", true);
 	}
+
+	getAnime(ID) {
+		return this.__request('/animes/'+ID, {}, "GET");
+	}
 	
 	/*
 		page							Number 1...100000
@@ -372,10 +412,17 @@ export default class API {
 	getUserFriends(userID) {
 		return this.__request("/users/"+userID+"/friends", {});
 	}
+
+	/*
+	
+	*/
+	getCalendar() {
+		return this.__request("/api/calendar", {});
+	}
 }
 
 API.isAuth = function() {
-	return localStorage.shikimori_session !== undefined;
+	return localStorage.shikimori_session != null;
 }
 
 API.getInstance = function() {

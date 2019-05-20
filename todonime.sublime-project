@@ -9,16 +9,15 @@
 	],
 	"settings":
     {
-        "tab_size": 4,
+        "tab_size": 2,
         "word_wrap": false,
-        "font_size": 9,
-        "font_face": "Ubuntu Light Regular"
+        "font_size": 9
     },
     "build_systems":
     [
         {
             "name": "nodejs",
-            "cmd": ["npm build"]
+            "cmd": ["npm run build"]
         }
     ]
 }

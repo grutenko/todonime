@@ -1,13 +1,12 @@
 const path = require("path");
 const webpack = require('webpack');
-const CompressionPlugin = require("compression-webpack-plugin");
 const Dotenv = require('dotenv-webpack');
 
 module.exports = (env, argv) => {
 	return {
 		mode: process.env.NODE_ENV || "development",
 		entry: {
-			content: "./src/index.js",
+			content: "./src/entries/index.js",
 			background: "./src/entries/background.js",
 			settings: "./src/entries/settings.js"
 		},
@@ -26,6 +25,10 @@ module.exports = (env, argv) => {
 					}
 				}
 			]
+		},
+		resolve: {
+		    modules: ['node_modules', 'src'],
+		    extensions: ['.js', '.jsx'],
 		},
 		plugins: [
 			new webpack.ProvidePlugin({

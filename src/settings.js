@@ -4,10 +4,6 @@ import Tabs from './components/tabs.jsx';
 import * as SettingsTabs from './components/settingsTabs.jsx';
 
 export default class Settings extends Component {
-	constructor(props) {
-		super(props);
-	}
-	
 	render() {
 		return (
 			<Tabs activeTab="3">

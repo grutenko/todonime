@@ -1,3 +1,6 @@
+/*
+
+*/
 export function setOption(name, value) {
 	localStorage[name] = value;
 	
@@ -6,6 +9,9 @@ export function setOption(name, value) {
 	);
 }
 
+/*
+
+*/
 export function onStorage(key, callback) {
 	addEventListener('storage', (e) => {
 		if(e.key != key) return;

@@ -2,6 +2,9 @@ import {clientID, clientSecret} from "./api";
 
 var __COUNTER__ = 0;
 
+/*
+
+*/
 function getClientID() {
 	return new Promise((resolve, reject) => {
 		var params = {
@@ -18,7 +21,7 @@ function getClientID() {
 		};
 		
 		$.ajax({
-			url: "https://faye-v2.shikimori.org/",
+			url: "https://faye-v2.shikimori.one/",
 			type: "GET",
 			data: {
 				message: JSON.stringify([params]),
@@ -32,6 +35,9 @@ function getClientID() {
 	});
 }
 
+/*
+
+*/
 function send(ws, data, clientID) {
 	__COUNTER__ += 1;
 	data = Object.assign(data, {
@@ -44,9 +50,12 @@ function send(ws, data, clientID) {
 	return __COUNTER__;
 }
 
+/*
+
+*/
 function connect(clientID) {
 	return new Promise((resolve, reject) => {
-		let ws = new WebSocket("wss://faye-v2.shikimori.org/");
+		let ws = new WebSocket("wss://faye-v2.shikimori.one/");
 		ws.onopen = () => {
 			send(ws, {channel: "/meta/connect"}, clientID);
 			window.wsAPI = new WSAPI(ws, clientID);
@@ -55,6 +64,9 @@ function connect(clientID) {
 	});
 }
 
+/*
+
+*/
 export function authorize() {
 	return new Promise((resolve, reject) => {
 		getClientID()
@@ -65,6 +77,9 @@ export function authorize() {
 	});
 }
 
+/*
+
+*/
 export class WSAPI {
 	constructor(ws, clientID) {
 		this.ws = ws;
@@ -75,6 +90,9 @@ export class WSAPI {
 			this.__onMessage.call(this, JSON.parse(response.data));
 	}
 	
+	/*
+
+	*/
 	subscribe(subscription, handler) {
 		send(this.ws, {
 			channel: "/meta/subscribe",
@@ -84,6 +102,9 @@ export class WSAPI {
 		return this.__addHandler(subscription, handler);
 	}
 	
+	/*
+
+	*/
 	removeHandler(subsciption, id) {
 		if(this.handlers[subscription] !== undefined
 				&& this.handlers[subscription][id] !== undefined) {
@@ -91,6 +112,9 @@ export class WSAPI {
 		}
 	}
 	
+	/*
+
+	*/
 	__addHandler(subscription, handler) {
 		if(this.handlers[subscription] === undefined) {
 			this.handlers[subscription] = [];
@@ -100,6 +124,9 @@ export class WSAPI {
 		return this.handlers[subscription].length - 1;
 	}
 	
+	/*
+
+	*/
 	__onMessage(data) {
 		data.forEach((e, i) => {
 			if(e.data !== undefined && this.handlers[e.channel] !== undefined) {
@@ -109,6 +136,9 @@ export class WSAPI {
 	}
 }
 
+/*
+
+*/
 WSAPI.getInstance = function() {
 	return window.wsAPI;
 }

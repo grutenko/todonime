@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {App} from './app';
-import {instance} from "./model/api";
-import {Loader} from "./interface/misc.jsx";
+import App from '../app';
+import {instance} from "../lib/api";
+import Loader from "../interface/share/loader";
 
 if(localStorage.shikimori_session != null) {
 	ReactDOM.render(<Loader />,

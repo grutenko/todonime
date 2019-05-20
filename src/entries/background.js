@@ -1,5 +1,5 @@
-import * as __API__ from "../model/api";
-import * as WS from "../model/webSocketApi";
+import * as __API__ from "../lib/api";
+import * as WS from "../lib/web-socket-api";
 
 const __INTERVAL__ = 10000;
 const __LIMIT__ = 3;
@@ -119,14 +119,11 @@ __API__.authorize({
 		if(data.news > 0)
 			getNews(news => showNews(news));
 		
-		if(data.messages > 0)
-			getMessages(messages => showMessages(messages));
-		
 		if(data.notifications > 0)
 			getNotifies(notifies => showNotifies(notifies));
 		
 		chrome.browserAction.setBadgeText({
-			text: data.messages.toString()
+			text: data.news.toString()
 		});
 	})
 });
