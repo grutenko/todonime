@@ -1,5 +1,6 @@
-import * as __API__ from "../lib/api";
+import * as __API__ from "../lib/shikimori-api";
 import * as WS from "../lib/web-socket-api";
+import API from "../lib/api";
 
 const __INTERVAL__ = 10000;
 const __LIMIT__ = 3;
@@ -11,7 +12,7 @@ var __cUser = null;
 	
 function showNews(notifies) {
 	notifies.forEach(notify => {
-		var image = 'https://shikimori.org/'
+		var image = 'https://shikimori.one/'
 			+(notify.linked.image !== undefined
 				? notify.linked.image.x96
 				: "");
@@ -24,7 +25,7 @@ function showNews(notifies) {
 				message: notify.html_body
 			},
 			() => window.open(
-				"https://shikimori.org" + notify.linked.url
+				"https://shikimori.one" + notify.linked.url
 			)
 		);
 	});

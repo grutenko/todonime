@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 
-import {authorize} from '../../lib/api';
+import {authorize} from '../../lib/shikimori-api';
 
 export default class Auth extends Component {
 	auth() {

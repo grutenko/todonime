@@ -1,4 +1,4 @@
-import {clientID, clientSecret} from "./api";
+import {clientID, clientSecret} from "./shikimori-api";
 
 var __COUNTER__ = 0;
 

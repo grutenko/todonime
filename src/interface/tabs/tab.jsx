@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
-import API from '../../lib/api';
+import ShikimoriAPI from '../../lib/shikimori-api';
 import Auth from '../share/auth';
 
 export default class Tab extends Component {
@@ -26,7 +26,7 @@ export default class Tab extends Component {
 		var authRequired = this.props.children.props.auth;
 
 		return (<div className={tabClass}>
-			{authRequired != undefined && authRequired == "true" && !API.isAuth()
+			{authRequired != undefined && authRequired == "true" && !ShikimoriAPI.isAuth()
 				? <Auth/>
 				: this.props.children}
 		</div>);

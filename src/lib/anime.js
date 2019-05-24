@@ -1,4 +1,4 @@
-import API from './api';
+import ShikimoriAPI from './shikimori-api';
 
 export const SORT = [
 	{code: 'id', name: 'id'},
@@ -69,7 +69,7 @@ export function getList(list, sort, filter, limit, page, search) {
 	page = page || 1;
 	search = search || "";
 
-	var api = API.getInstance();
+	var api = ShikimoriAPI.getInstance();
 	var __animes;
 
 	return api.getAnimes(
@@ -93,7 +93,7 @@ export function getList(list, sort, filter, limit, page, search) {
 }
 
 export function getDetail(ID) {
-	return API.getInstance().getAnime(ID);
+	return ShikimoriAPI.getInstance().getAnime(ID);
 }
 
 
