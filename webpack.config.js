@@ -38,7 +38,8 @@ module.exports = (env, argv) => {
 			new Dotenv({
 				path: argv.mode == "production"
 					? "./.env.production"
-					: "./.env.development"
+					: "./.env.development",
+				safe: true
 			})
 		]
 	}
