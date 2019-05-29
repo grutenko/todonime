@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Todonime",
   "short_name": "Todonime",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "options_page": "options.html",
   "description": "Todonime - многофункциональное расширение для Хикикомори.",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
