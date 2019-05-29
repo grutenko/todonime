@@ -9,6 +9,117 @@ var __SHOWED_MESS__ = [];
 	
 var __api = null;
 var __cUser = null;
+
+chrome.runtime.onInstalled.addListener(() => {
+	chrome.tabs.query({currentWindow: true}, (tabs) => {
+		var code = 'window.location.reload();';
+  	tabs.forEach(tab => {
+  		if(tab.url.match(/todonime\.space/))
+  			chrome.tabs.executeScript(tab.id, {code: code})
+  	});
+	})
+});
+
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+   	const {c, data, storeID} = request;
+
+   	const send = data => {
+   		chrome.tabs.sendMessage(sender.tab.id,
+   			Object.assign(data, {storeID}), ()=>{});
+   	};
+
+   	switch(c) {
+   		case 'synchro': synchronize(); break;
+   		case 'watched': isWatched(data.anime_id, data.episode, send);break;
+   		case 'send-watch': sendWatch(data.anime_id, data.episode, data.rateID, send); break;
+   		case 'add-rate': addRate(data.anime_id, data.episode, send); break;
+   	}
+  });
+
+function addRate(anime_id, episode, send) {
+	__API__.authorize({
+		responseType: "code",
+		redirectUri: chrome.identity.getRedirectURL('provider_cb')
+	})
+	.then(api => {
+		return api.addRate({
+			status: "watching",
+			target_id: anime_id,
+			target_type: "Anime",
+			user_id: api.getCurrentUser().id,
+			episodes: episode
+		});
+	})
+	.then(response => {
+		send({response: true, rateID:response.id})
+
+		showNotify(
+		Math.random(),
+		{
+			iconUrl: 'images/checkmark.png',
+			title: 'Серия отмечена как просмотреная',
+			message: 'Мы отметили как просмотенный '+episode+' эпизод этого аниме и добавили его в ваш список.'
+		}
+	);
+	})
+}
+
+function synchronize() {
+	if(localStorage.synchronize) return;
+
+	localStorage.synchronize = true;
+	showNotify(
+		Math.random(),
+		{
+			iconUrl: 'images/synchronize.png',
+			title: 'Просмотр синхронизирован!',
+			message: 'Просмотр на сайте todonime.space синхронизирован с вашим аккаунтом на shikimori.one'
+		}
+	);
+}
+
+function sendWatch(anime_id, episode, rateID, send) {
+	__API__.authorize({
+		responseType: "code",
+		redirectUri: chrome.identity.getRedirectURL('provider_cb')
+	})
+	.then(api => {
+		return api.incEpisode(rateID);
+	})
+	.then(response => {
+		send({response: true, rateID});
+
+		showNotify(
+		Math.random(),
+		{
+			iconUrl: 'images/checkmark.png',
+			title: 'Серия отмечена как просмотреная',
+			message: episode+' эпизод просмотрен.'
+		}
+	);
+	})
+}
+
+function isWatched(anime_id, episode, send) {
+	__API__.authorize({
+		responseType: "code",
+		redirectUri: chrome.identity.getRedirectURL('provider_cb')
+	})
+	.then(api => {
+		return api.getAnime(anime_id);
+	})
+	.then(anime => {
+		synchronize();
+
+		send({
+			response: anime.user_rate != null
+				&& anime.user_rate.episodes >= episode,
+				rateID: anime.user_rate.id
+		});
+	})
+}
 	
 function showNews(notifies) {
 	notifies.forEach(notify => {

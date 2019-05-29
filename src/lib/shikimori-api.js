@@ -419,6 +419,14 @@ export default class ShikimoriAPI {
 	getCalendar() {
 		return this.__request("/api/calendar", {});
 	}
+
+	incEpisode(rateID) {
+		return this.__request("/v2/user_rates/"+rateID+"/increment", {}, 'POST');
+	}
+
+	addRate(params) {
+		return this.__request("/v2/user_rates", params, 'POST');
+	}
 }
 
 ShikimoriAPI.isAuth = function() {

@@ -7,6 +7,7 @@ module.exports = (env, argv) => {
 		mode: process.env.NODE_ENV || "development",
 		entry: {
 			content: "./src/entries/index.js",
+			inject: "./src/entries/inject.js",
 			background: "./src/entries/background.js",
 			settings: "./src/entries/settings.js"
 		},
