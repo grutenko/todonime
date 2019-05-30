@@ -7,6 +7,10 @@ function send(message, callback) {
     store[storeID] = callback;
 }
 
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    store[request.storeID](request);
+});
+
 function meta(name) {
 	const metas = document.getElementsByTagName('meta');
 
@@ -41,11 +45,9 @@ function setWatchButtonWithHref(response) {
 	location.href = $('.to-next-episode').attr('href');
 }
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    store[request.storeID](request);
-});
-
 $(".b-click-watched:not(.watched)").on('click', (e) => {
+	if($(e.currentTarget).hasClass('watched')) return;
+
 	if($(e.currentTarget).attr('data-rate-id') === undefined) {
 		send({
 			c: 'add-rate',

@@ -14,7 +14,7 @@ chrome.runtime.onInstalled.addListener(() => {
 	chrome.tabs.query({currentWindow: true}, (tabs) => {
 		var code = 'window.location.reload();';
   	tabs.forEach(tab => {
-  		if(tab.url.match(/todonime\.space/))
+  		if(tab.url && tab.url.match(/todonime\.space/))
   			chrome.tabs.executeScript(tab.id, {code: code})
   	});
 	})
@@ -35,8 +35,18 @@ chrome.runtime.onMessage.addListener(
    		case 'watched': isWatched(data.anime_id, data.episode, send);break;
    		case 'send-watch': sendWatch(data.anime_id, data.episode, data.rateID, send); break;
    		case 'add-rate': addRate(data.anime_id, data.episode, send); break;
+   		case 'get-anime': getAnime(data.anime_id, send); break;
    	}
   });
+
+function getAnime(anime_id, send) {
+	__API__.authorize({
+		responseType: "code",
+		redirectUri: chrome.identity.getRedirectURL('provider_cb')
+	})
+	.then(api => api.getAnime(anime_id))
+	.then(response => send({anime: response}));
+}
 
 function addRate(anime_id, episode, send) {
 	__API__.authorize({
@@ -116,7 +126,7 @@ function isWatched(anime_id, episode, send) {
 		send({
 			response: anime.user_rate != null
 				&& anime.user_rate.episodes >= episode,
-				rateID: anime.user_rate.id
+				rateID: anime.user_rate ? anime.user_rate.id : null
 		});
 	})
 }

@@ -20,18 +20,21 @@ export default class Anime extends Component {
 	}
 
 	__getWatchedSeries() {
-		var {watched, episodes} = this.props.options;
-		return watched + '/' + episodes;
+		var {watched, episodes, episodes_aired, status} = this.props.options;
+
+		if(status == 'released')
+			return watched + '/' + episodes;
+
+		return watched + '/' + episodes_aired +' ('+(episodes <= 0 ? '?' : episodes)+ ')';
 	}
 
 	__goToView(onCurrent) {
-		var {url, watched, episodes} = this.props.options;
+		var {watched, episodes, id} = this.props.options;
 		var episode = onCurrent == true
 			? (watched > 0 ? watched : 1)
 			: (watched < episodes ? watched + 1 : 1); 
 
-		window.open('https://play.shikimori.org' + url + '/video_online/'
-			+ episode, '_blank');
+		window.open('https://todonime.space/video/'+id+'/'+episode, '_blank');
 	}
 
 	__toNextEpisode() {
@@ -88,10 +91,10 @@ export default class Anime extends Component {
 	}
 
 	makeFooter() {
-		var {watched, episodes, status, kind} = this.props.options;
+		var {watched, episodes, episodes_aired, status, kind} = this.props.options;
 		return (
 			<div className="anime__footer">
-				{status != 'anons' && watched < episodes ? this.makeWatchButton() : null}
+				{status != 'anons' && (watched < episodes || watched < episodes_aired) ? this.makeWatchButton() : null}
 				{watched > 0 ? this.makeRewatchButton() : null}
 				{kind != 'movie' ? this.makeWatchedSeries() : null}
 				{this.makeMyListChanger()}
@@ -118,7 +121,7 @@ export default class Anime extends Component {
 	}
 
 	onChangeList(list) {
-		this.props.onChangeList(list, id);
+		this.props.onChangeList(list, this.props.options.rate_id);
 	}
 
 	onMouseOut(e) {
@@ -140,7 +143,7 @@ export default class Anime extends Component {
 
 	render() {
 		var {image, russian, kind, url, status} = this.props.options;
-		var domain = 'https://shikimori.one/';
+		var domain = 'https://shikimori.one';
 		return (
 			<div
 				onMouseOut={this.onMouseOut.bind(this)}

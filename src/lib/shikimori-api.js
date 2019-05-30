@@ -146,7 +146,7 @@ function request(token, path, params, method, auth) {
 			? {"Authorization": "Bearer " + token}
 			: {};
 			
-		params = method == "POST"
+		params = ['POST', 'PATCH', 'PUT'].indexOf(method) != -1
 			? JSON.stringify(params)
 			: Object.assign(params, {rand: rand()});
 			
@@ -426,6 +426,10 @@ export default class ShikimoriAPI {
 
 	addRate(params) {
 		return this.__request("/v2/user_rates", params, 'POST');
+	}
+
+	updateRate(ID, params) {
+		return this.__request("/v2/user_rates/"+ID, {user_rate: params}, "PATCH");
 	}
 }
 
