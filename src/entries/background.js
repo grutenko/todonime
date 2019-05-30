@@ -10,6 +10,17 @@ var __SHOWED_MESS__ = [];
 var __api = null;
 var __cUser = null;
 
+chrome.tabs.onUpdated.addListener(tabId => {
+	chrome.tabs.query({active:true,windowType:"normal", currentWindow: true}, (tabs) => {
+		if(tabId != tabs[0].id) return;
+
+	  chrome.tabs.sendMessage(tabId, {
+	  	response: 'tabUpdated',
+	  	storeID: -1
+	  });
+	})
+});
+
 chrome.runtime.onInstalled.addListener(() => {
 	chrome.tabs.query({currentWindow: true}, (tabs) => {
 		var code = 'window.location.reload();';

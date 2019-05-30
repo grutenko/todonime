@@ -17,7 +17,7 @@
       "js": [ "js/inject.js" ]
     },
     {
-      "matches": ["https://shikimori.one/animes/*"],
+      "matches": ["https://shikimori.one/*"],
       "js": ["js/shikimori-inject.js"],
       "css": ["css/shikimori-inject.css"]
     }

@@ -8,7 +8,12 @@ function send(message, callback) {
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    store[request.storeID](request);
+	if(request.storeID == -1) {
+		var url = location.href.match(/\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/);
+		if(url[1]) makeButton(url);
+	}
+
+  store[request.storeID](request);
 });
 
 function createButton(url) {
@@ -22,8 +27,7 @@ function createButton(url) {
 	$('.watch-online-placeholer').html(button);
 }
 
-const url = location.href.match(/\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/);
-if(url[1]) {
+function makeButton(url) {
 	send({
 			c: 'get-anime',
 			data: {anime_id: url[1]}
@@ -39,3 +43,6 @@ if(url[1]) {
 			createButton('https://todonime.space/video/'+url[1]+'/' + episode + '?back='+location.href)
 		});
 }
+
+var url = location.href.match(/\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/);
+if(url != null) makeButton(url);
