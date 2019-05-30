@@ -2,9 +2,9 @@
   "manifest_version": 2,
   "name": "Todonime",
   "short_name": "Todonime",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "options_page": "options.html",
-  "description": "Todonime - многофункциональное расширение для Хикикомори.",
+  "description": "Ваши аниме-списки с shikimori.one и минималистичный плеер с синхронизацией просмотра.",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "icons": {
   	"32":"images/logotype-32x32.png",
@@ -13,14 +13,13 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://*.todonime.space/*",
-      	"*://*.shikimori.one/*",
-      	"https://maxcdn.bootstrapcdn.com/*",
-      	"https://fonts.gstatic.com/*",
-      	"https://img.icons8.com/"
-      ],
-      "js": [ "js/content.js" ]
+      "matches": ["https://todonime.space/*"],
+      "js": [ "js/inject.js" ]
+    },
+    {
+      "matches": ["https://shikimori.one/animes/*"],
+      "js": ["js/shikimori-inject.js"],
+      "css": ["css/shikimori-inject.css"]
     }
   ],
   "background": {
@@ -30,9 +29,9 @@
 	"notifications",
   	"identity",
   	"activeTab",
-  	"contextMenus",
   	"storage",
-  	"https://shikimori.one/*"
+  	"https://shikimori.one/*",
+    	"https://todonime.space/*"
   ],
   "browser_action": {
         "default_title": "Todonime",
