@@ -27,10 +27,10 @@ function parseRedirectFragment(fragment) {
 function getAuthorizationToken(code, redirectUri) {
 	var params = {
 		grant_type: "authorization_code",
-       	client_id: clientID,
+    	client_id: clientID,
 	    client_secret: clientSecret,
 	    code: code,
-       	redirect_uri: redirectUri
+      redirect_uri: redirectUri
     };
 	
 	return new Promise((resolve, reject) => {
@@ -145,6 +145,10 @@ function request(token, path, params, method, auth) {
 		let headers = auth
 			? {"Authorization": "Bearer " + token}
 			: {};
+
+		headers = Object.assign(headers, {
+			'Cache-Control': 'must-revalidate'
+		});
 			
 		params = ['POST', 'PATCH', 'PUT'].indexOf(method) != -1
 			? JSON.stringify(params)
