@@ -28,7 +28,11 @@ export default class Tabs extends Component {
 
 	render() {
 		return (<div className="tabs">
-			<HeaderList activeTab={this.state.activeTab} onActive={this.onActive.bind(this)}>
+			<HeaderList
+				showSettingsButton={this.props.showSettingsButton}
+				activeTab={this.state.activeTab}
+				onActive={this.onActive.bind(this)}
+			>
 				{this.props.children}
 			</HeaderList>
 			{this.makeTabsContent()}
@@ -37,5 +41,6 @@ export default class Tabs extends Component {
 }
 
 Tabs.defaultProps = {
-	activeTab: 0
+	activeTab: 0,
+	showSettingsButton: false
 };

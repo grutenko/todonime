@@ -13,6 +13,10 @@ export default class HeaderList extends Component {
 		return () => this.onActive(id);
 	}
 
+	onSettings() {
+		chrome.tabs.create({'url': "/options.html" });
+	}
+
 	render() {
 		return (<ul className="tabs__header">
 			{React.Children.map(this.props.children, (tab, i) =>
@@ -23,6 +27,15 @@ export default class HeaderList extends Component {
 	    		onClick={this.onActiveHOrder(i)}
 	    	/>
     	)}
+    	{this.props.showSettingsButton
+    		? <li style={{flex: 'inherit'}} onClick={this.onSettings.bind(this)} className="tabs__header-element no-hover">
+    			<img style={{width: '18px',height: '18px'}} src="/images/settings.png" />
+    		</li>
+    		: null}
 		</ul>);
 	}
+}
+
+HeaderList.defaultProps = {
+	showSettingsButton: false
 }

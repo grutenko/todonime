@@ -94,7 +94,7 @@ ul.tabs__header li {
 	cursor: pointer;
 }
 
-ul.tabs__header li:hover {
+ul.tabs__header li:not(.no-hover):hover {
 	background: #C7DEAA;
 	color: #424848;
 }
