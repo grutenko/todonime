@@ -1,6 +1,6 @@
 {
   "name": "todonime",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "dependencies": {
     "dompurify": "^1.0.10",
