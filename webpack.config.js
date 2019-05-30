@@ -1,6 +1,7 @@
 const path = require("path");
 const webpack = require('webpack');
 const Dotenv = require('dotenv-webpack');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = (env, argv) => {
 	return {
@@ -42,7 +43,33 @@ module.exports = (env, argv) => {
 					? "./.env.production"
 					: "./.env.development",
 				safe: true
-			})
-		]
+			}),
+			new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+		],
+		optimization: {
+  	  minimizer: [
+	      new TerserPlugin({
+	        cache: true,
+	        parallel: true,
+	        sourceMap: false, // Must be set to true if using source-maps in production
+	        extractComments: false,
+	        terserOptions: {
+	          ecma: undefined,
+	          warnings: false,
+	          parse: {},
+	          compress: {},
+	          mangle: true, // Note `mangle.properties` is `false` by default.
+	          module: false,
+	          output: null,
+	          toplevel: false,
+	          nameCache: null,
+	          ie8: false,
+	          keep_classnames: undefined,
+	          keep_fnames: false,
+	          safari10: false,
+	        }
+	      }),
+	    ],
+  	}
 	}
 };

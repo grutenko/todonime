@@ -6,6 +6,7 @@ import Loader from '../share/loader';
 import {getDetail} from '../../lib/anime';
 
 import Moment from 'moment';
+import 'moment/locale/ru';
 
 export default class Detail extends Component {
 	constructor(props) {
