@@ -17,11 +17,11 @@ export default class App extends Component {
 				<Tabs activeTab="1" showSettingsButton={true}>
 					<PlannedTab name="Запланировано" auth="true"/>
 					<WatchTab name="Смотрю" auth="true"/>
+					<OnHoldTab name="Отложено" auth="true"/>
 					<Tabs name="Еще" activeTab="1">
 						<RewatchTab name="Пересматриваю" auth="true"/>
-						<CompleteTab name="Просмотрел" auth="true"/>
-						<DroppedTab name="Бросил" auth="true"/>
-						<OnHoldTab name="Отложил" auth="true"/>
+						<CompleteTab name="Просмотрено" auth="true"/>
+						<DroppedTab name="Брошено" auth="true"/>
 					</Tabs>
 				</Tabs>
 			</div>
