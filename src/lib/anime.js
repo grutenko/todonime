@@ -96,6 +96,10 @@ export function getDetail(ID) {
 	return ShikimoriAPI.getInstance().getAnime(ID);
 }
 
+export function updateRate(rateID, data) {
+	return ShikimoriAPI.getInstance().updateRate(rateID, data);
+}
+
 
 /**
  * Function set user rates data to anime. Add the current wathed series.
@@ -114,6 +118,7 @@ function setRates(animes, rates) {
 			anime = Object.assign(anime, {
 				watched: rate.episodes,
 				score: rate.score,
+				rate_id: rate.id
 			});
 				
 			break;

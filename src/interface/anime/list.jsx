@@ -4,7 +4,7 @@ import Loader from '../share/loader';
 
 import * as AnimeModel from '../../lib/anime';
 import * as Favorites from '../../lib/favorites';
-import {subscribe, unsubscribe} from '../../lib/event';
+import {subscribe, unsubscribe, dispatch} from '../../lib/event';
 
 import Anime from './item';
 import Search from '../share/search';
@@ -104,6 +104,15 @@ export default class List extends Component {
 			$('#' + this.listID).animate({
 				scrollTop: e.detail.el.offsetTop - 260
 			}, 250);
+		});
+
+		this.eventChangeList = subscribe('changeList', (e) => {
+			const {from, to} = e.detail;
+			if([from, to].indexOf(this.props.list) == -1) return;
+
+			this.updateStateWithLoader({
+				page: DEF_PAGE
+			}, true);
 		})
 	}
 
@@ -113,6 +122,7 @@ export default class List extends Component {
 			unsubscribe(this.fvEventID);
 
 		unsubscribe(this.eventDetailID);
+		unsubscribe(this.eventChangeList);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -225,7 +235,7 @@ export default class List extends Component {
 			: this.animes;
 
 		return (
-			<div className="animes__list" id={this.listID}>
+			<div style={{height: this.props.listHeight+'px'}} className="animes__list" id={this.listID}>
 				{this.props.useFavorites && bookmarks.length > 0
 					? this.makeBookmarksList(bookmarks)
 					: null}
@@ -250,7 +260,16 @@ export default class List extends Component {
 	}
 
 	onChangeList(list, id) {
-		
+		AnimeModel.updateRate(id, {
+			status: list
+		})
+		.then(() => {
+			dispatch('changeList', {
+				from: this.props.list,
+				to: list,
+				id
+			});
+		});
 	}
 
 	render() {
@@ -277,5 +296,6 @@ export default class List extends Component {
 List.defaultProps = {
 	list: 'planned',
 	limit: 20,
+	listHeight: 510,
 	useFavorites: false
 };
