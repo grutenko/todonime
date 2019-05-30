@@ -8,6 +8,7 @@ module.exports = (env, argv) => {
 		entry: {
 			content: "./src/entries/index.js",
 			inject: "./src/entries/inject.js",
+			'shikimori-inject': "./src/entries/shikimori-inject.js",
 			background: "./src/entries/background.js",
 			settings: "./src/entries/settings.js"
 		},
