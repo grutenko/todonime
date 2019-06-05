@@ -47,93 +47,58 @@ chrome.runtime.onMessage.addListener(
    		case 'send-watch': sendWatch(data.anime_id, data.episode, data.rateID, send); break;
    		case 'add-rate': addRate(data.anime_id, data.episode, send); break;
    		case 'get-anime': getAnime(data.anime_id, send); break;
+   		case 'whoami': getCurrentUser(send); break;
    	}
   });
 
-function getAnime(anime_id, send) {
-	__API__.authorize({
+function auth() {
+	return __API__.authorize({
 		responseType: "code",
 		redirectUri: chrome.identity.getRedirectURL('provider_cb')
-	})
-	.then(api => api.getAnime(anime_id))
-	.then(response => send({anime: response}));
+	});
+}
+
+function getCurrentUser(send) {
+	auth()
+		.then(api => send({response: api.getCurrentUser()}));
+}
+
+function getAnime(anime_id, send) {
+	auth()
+		.then(api => api.getAnime(anime_id))
+		.then(response => send({anime: response}));
 }
 
 function addRate(anime_id, episode, send) {
-	__API__.authorize({
-		responseType: "code",
-		redirectUri: chrome.identity.getRedirectURL('provider_cb')
-	})
-	.then(api => {
-		return api.addRate({
-			status: "watching",
-			target_id: anime_id,
-			target_type: "Anime",
-			user_id: api.getCurrentUser().id,
-			episodes: episode
-		});
-	})
-	.then(response => {
-		send({response: true, rateID:response.id})
-
-		showNotify(
-		Math.random(),
-		{
-			iconUrl: 'images/checkmark.png',
-			title: 'Серия отмечена как просмотреная',
-			message: 'Мы отметили как просмотенный '+episode+' эпизод этого аниме и добавили его в ваш список.'
-		}
-	);
-	})
+	auth()
+		.then(api => {
+			return api.addRate({
+				status: "watching",
+				target_id: anime_id,
+				target_type: "Anime",
+				user_id: api.getCurrentUser().id,
+				episodes: episode
+			});
+		})
+		.then(response => send({response: true, rateID:response.id}))
 }
 
 function synchronize() {
-	if(localStorage.synchronize) return;
-
-	localStorage.synchronize = true;
-	showNotify(
-		Math.random(),
-		{
-			iconUrl: 'images/synchronize.png',
-			title: 'Просмотр синхронизирован!',
-			message: 'Просмотр на сайте todonime.space синхронизирован с вашим аккаунтом на shikimori.one'
-		}
-	);
+	if(!localStorage.synchronize)
+		localStorage.synchronize = true;
 }
 
 function sendWatch(anime_id, episode, rateID, send) {
-	__API__.authorize({
-		responseType: "code",
-		redirectUri: chrome.identity.getRedirectURL('provider_cb')
-	})
-	.then(api => {
-		return api.incEpisode(rateID);
-	})
-	.then(response => {
-		send({response: true, rateID});
-
-		showNotify(
-		Math.random(),
-		{
-			iconUrl: 'images/checkmark.png',
-			title: 'Серия отмечена как просмотреная',
-			message: episode+' эпизод просмотрен.'
-		}
-	);
-	})
+	auth()
+	.then(api => api.incEpisode(rateID))
+	.then(response => send({response: true, rateID}))
 }
 
 function isWatched(anime_id, episode, send) {
-	__API__.authorize({
-		responseType: "code",
-		redirectUri: chrome.identity.getRedirectURL('provider_cb')
-	})
-	.then(api => {
-		return api.getAnime(anime_id);
-	})
+	auth()
+	.then(api => api.getAnime(anime_id))
 	.then(anime => {
 		synchronize();
-
 		send({
 			response: anime.user_rate != null
 				&& anime.user_rate.episodes >= episode,
