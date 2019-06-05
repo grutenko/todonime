@@ -160,7 +160,8 @@ function request(token, path, params, method, auth) {
 			headers: headers,
 			contentType: "application/json; charset=utf-8",
 			data:params,
-			dataType:"json"
+			dataType:"json",
+			xhrFields: {loadend: ()=>{}}
 		}).then(
 			(data) => resolve(data),
 			(xhr, textStatus, errorThrown) => reject(xhr, errorThrown)
@@ -212,7 +213,7 @@ export default class ShikimoriAPI {
 							(data) => resolve(data),
 							(xhr, error) => reject(xhr, error)
 						)
-					},250)
+					},400)
 			});
 		}
 	}
