@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import Window from '../share/windows';
 import Picker from '../share/picker';
 
+import {compare} from '../../lib/compare';
 import {KIND, RATING} from '../../lib/anime';
 
 export default class Filter extends Component {
@@ -13,6 +14,11 @@ export default class Filter extends Component {
 			show: false,
 			filter: this.props.define
 		};
+	}
+
+	componentDidUpdate(prevProps) {
+		if(!compare(prevProps.define, this.props.define))
+			this.setState({filter: this.props.define});
 	}
 
 	makePicker(options, define, name, callback) {
@@ -90,10 +96,11 @@ export default class Filter extends Component {
 	render() {
 		return (<span>
 			{this.state.show ? this.makeWindow() : null}
-			<img className="tools__button"
-				src="/images/filter.png"
-				onClick={this.toggle.bind(this)}
-			/>
+			<i className="material-icons tools__button"
+			   onClick={this.toggle.bind(this)}
+			>
+				filter_list
+			</i>
 		</span>);
 	}
 }
