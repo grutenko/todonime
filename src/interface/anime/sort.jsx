@@ -50,10 +50,7 @@ export default class Sort extends Component {
 
 	render() {
 		return (<span>
-			<img className="tools__button"
-				src="/images/sort.png"
-				onClick={this.toggle.bind(this)}
-			/>
+			<i className="material-icons tools__button" onClick={this.toggle.bind(this)}>sort_by_alpha</i>
 			{this.state.show ? this.makeWindow() : null}
 		</span>);
 	}

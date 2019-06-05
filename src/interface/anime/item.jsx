@@ -6,6 +6,7 @@ import Status from './status';
 import Bookmark from './bookmark';
 import Detail from './detail';
 import MylistChanger from './my-list-changer';
+import Window from '../share/windows';
 
 import {add, unset} from '../../lib/favorites';
 import {dispatch} from '../../lib/event';
@@ -13,7 +14,11 @@ import {dispatch} from '../../lib/event';
 export default class Anime extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {showDetail: false};
+		this.state = {
+			showDetail: false,
+			showEpisodesChanger: false
+		};
+
 		this.id = 'anime-' + this.props.options.id;
 
 		this.ref = React.createRef();
@@ -45,30 +50,41 @@ export default class Anime extends Component {
 		this.__goToView(true);
 	}
 
+	onChangeSeries(e) {
+
+	}
+
 	makeWatchedSeries() {
 		return (
-			<span className="anime__footer-watched--series">
+			<span
+				onClick={this.onChangeSeries.bind(this)}
+				className="anime__footer-watched--series"
+				title="Нажмите чтобы изменить."
+			>
 				{this.__getWatchedSeries()}
+				{this.state.showEpisodesChanger
+					? <Window>
+							<input type="text" style={{width: '20px'}} defaultValue={this.props.options.watched} focus="true"/>
+						</Window>
+						: null}
 			</span>);
 	}
 
 	makeRewatchButton() {
 		return (
-			<img onClick={this.__toCurrentEpisode.bind(this)}
-				className="anime__manage play"
-				src="/images/replay.png"
+			<i onClick={this.__toCurrentEpisode.bind(this)}
+				className="anime__manage play material-icons"
 				title="Пересмотреть текущую"
-			/>);
+			>replay</i>);
 	}
 
 	makeWatchButton() {
 		var watched = this.props.options.watched;
 		return (
-			<img onClick={this.__toNextEpisode.bind(this)}
-				className="anime__manage play"
-		  	src="/images/play.png"
+			<i onClick={this.__toNextEpisode.bind(this)}
+				className="anime__manage play material-icons"
 				title={watched > 0 ? 'Смотреть дальше' : 'Начать просмотр'}
-			/>
+			>play_arrow</i>
 		);
 	}
 
@@ -97,6 +113,7 @@ export default class Anime extends Component {
 				{status != 'anons' && (watched < episodes || watched < episodes_aired) ? this.makeWatchButton() : null}
 				{watched > 0 ? this.makeRewatchButton() : null}
 				{kind != 'movie' ? this.makeWatchedSeries() : null}
+				<i className="material-icons show-anime-hover anime__manage play" title="Скопировать ссылку на серию">share</i>
 				{this.makeMyListChanger()}
 				{this.makeDetail()}
 			</div>);
