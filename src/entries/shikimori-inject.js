@@ -33,6 +33,8 @@ function makeButton(url) {
 			data: {anime_id: url[1]}
 		},
 		({anime}) => {
+			if(anime.status == 'anons') return;
+
 			const rate = anime.user_rate;
 			const episode = !rate
 				? 1
