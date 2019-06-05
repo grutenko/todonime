@@ -33,9 +33,15 @@ export function subscribe(name, listener) {
 	return ID;
 }
 
-export function unsubscribe(ID) {
-	if(listeners[ID] == undefined) return;
+export function unsubscribe(IDs) {
+	if(!Array.isArray(IDs)) IDs = [IDs];
 
-	const  {name, listener} = listeners[ID];
-	document.removeEventListener(name, listener);
+	for(let i in IDs) {
+		const ID = IDs[i];
+
+		if(listeners[ID] == undefined) return;
+
+		const  {name, listener} = listeners[ID];
+		document.removeEventListener(name, listener);
+	}
 }
