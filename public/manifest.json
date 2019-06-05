@@ -2,12 +2,12 @@
   "manifest_version": 2,
   "name": "Todonime",
   "short_name": "Todonime",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "options_page": "options.html",
   "description": "Ваши аниме-списки с shikimori.one и минималистичный плеер с синхронизацией просмотра.",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "icons": {
-  	"32":"images/logotype-32x32.png",
+    "32":"images/logotype-32x32.png",
     "48":"images/logotype-48x48.png",
     "128":"images/logotype-128x128.png"
   },
@@ -17,7 +17,7 @@
       "js": ["js/inject.js"]
     },
     {
-      "matches": ["https://shikimori.one/*"],
+      "matches": ["https://shikimori.one/*", "https://shikimori.org/*"],
       "js": ["js/shikimori-inject.js"],
       "css": ["css/shikimori-inject.css"]
     }
@@ -26,11 +26,12 @@
     "scripts": ["js/background.js"]
   },
   "permissions": [
-	  "notifications",
+	 "notifications",
   	"identity",
   	"activeTab",
   	"storage",
-  	"https://*.shikimori.one/*",
+    "https://shikimori.one/*",
+    "https://shikimori.org/*",
     "https://todonime.space/*"
   ],
   "browser_action": {

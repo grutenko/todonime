@@ -15,14 +15,12 @@ export default class App extends Component {
 		return (
 			<div className="app__container">
 				<Tabs activeTab="1" showSettingsButton={true}>
-					<PlannedTab name="Запланировано" auth="true"/>
-					<WatchTab name="Смотрю" auth="true"/>
-					<OnHoldTab name="Отложено" auth="true"/>
-					<Tabs name="Еще" activeTab="1">
-						<RewatchTab name="Пересматриваю" auth="true"/>
-						<CompleteTab name="Просмотрено" auth="true"/>
-						<DroppedTab name="Брошено" auth="true"/>
-					</Tabs>
+					<PlannedTab iconName="add" name="Запланировано" auth="true"/>
+					<WatchTab iconName="play_arrow" name="Смотрю" auth="true"/>
+					<RewatchTab iconName="replay" name="Пересматриваю" auth="true"/>
+					<DroppedTab iconName="delete" name="Брошено" auth="true"/>
+					<OnHoldTab iconName="pause" name="Отложено" auth="true"/>
+					<CompleteTab iconName="check" name="Просмотрено" auth="true"/>
 				</Tabs>
 			</div>
 		)

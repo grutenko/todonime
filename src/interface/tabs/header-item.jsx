@@ -6,9 +6,11 @@ export default class HeaderItem extends Component {
 		var liClass = "tabs__header-element"
 			+ (this.props.active ? " active" : "");
 
+		const {id} = this.props;
+
 		return (
-			<li onClick={this.props.onClick} className={liClass}>
-				{this.props.name}
+			<li key={id} onClick={this.props.onClick} className={liClass} title={this.props.name}>
+				<i className="material-icons">{this.props.iconName}</i>
 			</li>
 		);
 	}
