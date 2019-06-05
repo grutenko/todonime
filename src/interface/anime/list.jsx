@@ -4,6 +4,7 @@ import Loader from '../share/loader';
 
 import * as AnimeModel from '../../lib/anime';
 import * as Favorites from '../../lib/favorites';
+import {compare} from '../../lib/compare';
 import {subscribe, unsubscribe, dispatch} from '../../lib/event';
 
 import Anime from './item';
@@ -41,8 +42,7 @@ export default class List extends Component {
 	 * @param  {boolean} state If true - current anime list rewrited else added to end.
 	 */
 	updateStateWithLoader(state, rewrite) {
-		var stateFields = {loaded: false};
-		stateFields = Object.assign(stateFields, state);
+		var stateFields = Object.assign({loaded: false}, state);
 
 		this.rewrite = (rewrite == undefined ? true : rewrite);
 		this.setState(Object.assign(this.state, stateFields));
@@ -57,13 +57,10 @@ export default class List extends Component {
 	 */
 	resetStateWith(state, rewrite) {
 		this.rewrite = (rewrite == undefined ? true : rewrite);
-		this.setState(this.__defaultState(
-			Object.assign(state, {loaded: false})
-		));
+		this.setState(this.__defaultState(state || {}));
 	}
 
 	__defaultState(withValues) {
-		withValues = withValues || {};
 		this.rewrite = true;
 
 		return Object.assign({
@@ -73,8 +70,8 @@ export default class List extends Component {
 			page 			: DEF_PAGE,
 			isLastPage: false,
 			search 		: null,
-			filter 		: DEF_FILTER
-		}, withValues);
+			filter 		: Object.assign({}, DEF_FILTER)
+		}, withValues || {});
 	}
 
 	componentDidMount() {
@@ -121,8 +118,7 @@ export default class List extends Component {
 		if(this.props.useFavorites)
 			unsubscribe(this.fvEventID);
 
-		unsubscribe(this.eventDetailID);
-		unsubscribe(this.eventChangeList);
+		unsubscribe([this.eventDetailID, this.eventChangeList]);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -134,13 +130,22 @@ export default class List extends Component {
 	getAnimes(rewrite) {
 		const {sort, limit, page, filter, search} = this.state;
 
-		AnimeModel.getList(this.props.list, sort, filter, limit, page, search)
-		.then(animes => {
-			this.animes = rewrite ? animes : this.animes.concat(animes);
-			this.setState(Object.assign(this.state, {
+		AnimeModel.getList(
+			this.props.list,
+			sort,
+			filter,
+			limit,
+			page,
+			search
+		).then(animes => {
+			this.animes = rewrite
+				? animes
+				: this.animes.concat(animes);
+
+			this.setState({
 				loaded: true,
 				isLastPage: animes.length < this.props.limit
-			}))
+			})
 		});
 	}
 
@@ -188,7 +193,11 @@ export default class List extends Component {
 	}
 
 	resetState() {
-		this.setState(this.__defaultState());
+		this.resetStateWith();
+	}
+
+	onCancel() {
+		this.resetStateWith({}, true);
 	}
 
 	onClearBookmarks() {
@@ -240,16 +249,15 @@ export default class List extends Component {
 					? this.makeBookmarksList(bookmarks)
 					: null}
 				{animes.map((anime, i) =>
-						<Fragment>
+						<Fragment key={i}>
 							<Anime
-								key={i}
 								options={anime}
 								useFavorites={this.props.useFavorites}
 								list={this.props.list}
 								onChangeList={this.onChangeList.bind(this)}
 							/>
 							{i % this.props.limit == 0 && i >= this.props.limit
-								? <div key={-i} className="hr-with-text">
+								? <div className="hr-with-text">
 										{Math.round(i / this.props.limit + 1)} страница
 									</div>
 								: null
@@ -273,9 +281,11 @@ export default class List extends Component {
 	}
 
 	render() {
+		const {filter, search} = this.state;
+
 		return (<div>
 			<div className="filter">
-				<Search onApply={this.applySearch} onReset={this.onReset('search')} />
+				<Search onApply={this.applySearch} onReset={this.onReset('search')} q={search}/>
 				<div style={{display: 'inline-block', float: 'right'}}>
 					<Sort onApply={this.applySorting} onReset={this.onReset('sort')} active={this.state.sort}/>
 					<Filter onApply={this.applyFilter} onReset={this.onReset('filter')} define={this.state.filter}/>
@@ -285,7 +295,12 @@ export default class List extends Component {
 				? <Loader /> 
 				: this.animes.length == 0
 					? <div className="auth_required">
-							Нет ни одного аниме. ¯\_(ツ)_/¯
+							<p>Нет ни одного аниме. ¯\_(ツ)_/¯</p>
+							{(!compare(DEF_FILTER, filter) || search != '')
+								? <button className="main__button" onClick={this.onCancel.bind(this)}>
+										сбросить фильтры
+									</button>
+								: null}
 						</div>
 					: null}
 			{this.makeList()}
