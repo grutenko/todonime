@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom';
 import HeaderList from './header-list'
 import Tab from './tab';
 
+import {set} from '../../lib/settings';
+
 export default class Tabs extends Component {
 	constructor(props) {
 		super(props);
@@ -24,6 +26,7 @@ export default class Tabs extends Component {
 
 	onActive(id) {
 		this.setState({activeTab: id});
+		set('activeTab', id);
 	}
 
 	render() {
