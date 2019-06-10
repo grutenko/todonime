@@ -1,0 +1,612 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"search",
+				"searchOnShiki"
+			],
+			[
+				"show",
+				"showNotify"
+			],
+			[
+				"component",
+				"componentDidUpdate\t(search.jsx)"
+			],
+			[
+				"resetSta",
+				"resetStateWith"
+			],
+			[
+				"dis",
+				"dispatch"
+			],
+			[
+				"shiki",
+				"shikimori-inject.js"
+			],
+			[
+				"ra",
+				"random\t(filter.jsx)"
+			],
+			[
+				"expanded",
+				"expandedIndx"
+			],
+			[
+				"ex",
+				"expandedIndx"
+			],
+			[
+				"scroll",
+				"scrollTop"
+			],
+			[
+				"const",
+				"const"
+			],
+			[
+				"score",
+				"scoreValue"
+			],
+			[
+				"inside",
+				"insideDefault\t(score.jsx)"
+			],
+			[
+				"insi",
+				"insideScore"
+			],
+			[
+				"filter",
+				"filtered_name"
+			],
+			[
+				"make",
+				"makeGenresList"
+			],
+			[
+				"studi",
+				"studio\t(detail.jsx)"
+			],
+			[
+				"get",
+				"getDetail"
+			],
+			[
+				"toggle",
+				"toggleDetail"
+			],
+			[
+				"define",
+				"defineKeys"
+			],
+			[
+				"Anime",
+				"AnimeModel"
+			],
+			[
+				"on",
+				"onApply"
+			],
+			[
+				"send",
+				"sendChange"
+			],
+			[
+				"onChange",
+				"onChangeRating"
+			],
+			[
+				"font",
+				"font-weight\tproperty"
+			],
+			[
+				"code",
+				"codeNameObj"
+			],
+			[
+				"new",
+				"newOptions"
+			],
+			[
+				"border",
+				"border-radius\t(main.css)"
+			],
+			[
+				"pro",
+				"props\tReact: this.props."
+			],
+			[
+				"cons",
+				"constructor\t(list.jsx)"
+			],
+			[
+				"apply",
+				"applySorting"
+			],
+			[
+				"if",
+				"if\tif"
+			],
+			[
+				"update",
+				"updateStateWithLoader"
+			],
+			[
+				"with",
+				"withValues"
+			],
+			[
+				"cla",
+				"className\t(list.jsx)"
+			],
+			[
+				"applt",
+				"applySorting"
+			],
+			[
+				"list",
+				"listID"
+			],
+			[
+				"margin",
+				"margin-right\tproperty"
+			],
+			[
+				"default",
+				"__defaultState"
+			],
+			[
+				"active",
+				"activeTab"
+			],
+			[
+				"released",
+				"released_on"
+			],
+			[
+				"createDetail",
+				"createDetailInfo"
+			],
+			[
+				"create",
+				"createFooter"
+			],
+			[
+				"sorted",
+				"sortedAnimes"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "import React, { Component, Fragment } from \"react\";\nimport ReactDOM from 'react-dom';\nimport Loader from '../share/loader';\n\nimport * as AnimeModel from '../../lib/anime';\nimport * as Favorites from '../../lib/favorites';\nimport {compare} from '../../lib/compare';\nimport {subscribe, unsubscribe, dispatch} from '../../lib/event';\nimport {shikimoriURLMake} from '../../lib/url-maker';\n\nimport Anime from './item';\nimport Search from '../share/search';\nimport Sort from './sort';\nimport Filter from './filter';\n\nconst DEF_SORT = 'ranked';\nconst DEF_LIMIT = 20;\nconst DEF_PAGE = 1;\nconst DEF_FILTER = {\n\tkind: AnimeModel.KIND.map(i => i.code),\n\trating: AnimeModel.RATING.map(i => i.code),\n};\n\nexport default class List extends Component {\n\tconstructor(props) {\n\t\tsuper(props);\n\t\tthis.state = this.__defaultState();\n\t\tthis.animes = [];\n\t\tthis.listID = \"list__\"+ Math.floor(Math.random() * 1000);\n\t\tthis.rewrite = true;\n\n\t\tthis.applyFilter = this.applyFilter.bind(this);\n\t\tthis.applySorting = this.applySorting.bind(this);\n\t\tthis.applySearch = this.applySearch.bind(this);\n\t}\n\n\t/**\n\t * The method updates the state of the component and sets the value of loaded as false.\n\t * This is necessary to show the loader and send ajax request for data. Look at the\n\t * componentDidUpdate() method for details.\n\t *\n\t * @param  {object} state Object with state data to be changed\n\t * @param  {boolean} state If true - current anime list rewrited else added to end.\n\t */\n\tupdateStateWithLoader(state, rewrite) {\n\t\tvar stateFields = Object.assign({loaded: false}, state);\n\n\t\tthis.rewrite = (rewrite == undefined ? true : rewrite);\n\t\tthis.setState(Object.assign(this.state, stateFields));\n\t}\n\n\t/**\n\t * The method returns the component to its original state, while adding values ​​from the\n\t * state parameter. Required for example to reset the filter and sort when searching.\n\t *\n\t * @param {object} state Object with state data to be changed\n \t * @param  {boolean} state If true - current anime list rewrited else added to end.\n\t */\n\tresetStateWith(state, rewrite) {\n\t\tthis.rewrite = (rewrite == undefined ? true : rewrite);\n\t\tthis.setState(this.__defaultState(state || {}));\n\t}\n\n\t__defaultState(withValues) {\n\t\tthis.rewrite = true;\n\n\t\treturn Object.assign({\n\t\t\tloaded\t\t: false,\n\t\t\tsort \t\t\t: DEF_SORT,\n\t\t\tlimit \t\t: this.props.limit,\n\t\t\tpage \t\t\t: DEF_PAGE,\n\t\t\tisLastPage: false,\n\t\t\tsearch \t\t: null,\n\t\t\tfilter \t\t: Object.assign({}, DEF_FILTER)\n\t\t}, withValues || {});\n\t}\n\n\tcomponentDidMount() {\n\t\tthis.getAnimes(true);\n\n\t\t$('#'+this.listID).scroll((e) => {\n\t\t\tvar list = $(e.currentTarget);\n\n\t\t\tif(list.prop('scrollHeight') - list.scrollTop() <= 600\n\t\t\t\t&& !this.state.isLastPage\n\t\t\t\t&& this.state.loaded)\n\t\t\t{\n\t\t\t\tthis.incrementPage();\n\t\t\t}\n\t\t});\n\n\t\tif(this.props.useFavorites)\n\t\t\tthis.fvEventID = subscribe('favorites', () => this.forceUpdate());\n\n\t\tthis.eventDetailID = subscribe('toggleDetail', (e) => {\n\t\t\tif(e.detail.type != 'show' || e.detail.list != this.props.list)\n\t\t\t\treturn;\n\n\t\t\tif($('#' + this.listID).get(0).scrollTop >= e.detail.el.offsetTop - 260)\n\t\t\t\treturn;\n\n\t\t\t$('#' + this.listID).animate({\n\t\t\t\tscrollTop: e.detail.el.offsetTop - 260\n\t\t\t}, 250);\n\t\t});\n\n\t\tthis.eventChangeList = subscribe('changeList', (e) => {\n\t\t\tconst {from, to} = e.detail;\n\t\t\tif([from, to].indexOf(this.props.list) == -1) return;\n\n\t\t\tthis.updateStateWithLoader({\n\t\t\t\tpage: DEF_PAGE\n\t\t\t}, true);\n\t\t})\n\t}\n\n\tcomponentWillUnmount() {\n\t\t$('#'+this.listID).off();\n\t\tif(this.props.useFavorites)\n\t\t\tunsubscribe(this.fvEventID);\n\n\t\tunsubscribe([this.eventDetailID, this.eventChangeList]);\n\t}\n\n\tcomponentDidUpdate(prevProps, prevState) {\n\t\tif(!this.state.loaded) {\n\t\t\tthis.getAnimes(this.rewrite);\n\t\t}\n\t}\n\n\tgetAnimes(rewrite) {\n\t\tconst {sort, limit, page, filter, search} = this.state;\n\n\t\tAnimeModel.getList(\n\t\t\tthis.props.list,\n\t\t\tsort,\n\t\t\tfilter,\n\t\t\tlimit,\n\t\t\tpage,\n\t\t\tsearch\n\t\t).then(animes => {\n\t\t\tthis.animes = rewrite\n\t\t\t\t? animes\n\t\t\t\t: this.animes.concat(animes);\n\n\t\t\tthis.setState({\n\t\t\t\tloaded: true,\n\t\t\t\tisLastPage: animes.length < this.props.limit\n\t\t\t})\n\t\t});\n\t}\n\n\tapplyFilter(filter) {\n\t\tthis.updateStateWithLoader({\n\t\t\tfilter,\n\t\t\tpage: DEF_PAGE\n\t\t});\n\t}\n\n\tapplySorting(sort) {\n\t\tthis.updateStateWithLoader({\n\t\t\tsort: sort,\n\t\t\tpage: DEF_PAGE\n\t\t});\n\t}\n\n\tapplySearch(q) {\n\t\tthis.updateStateWithLoader({\n\t\t\tsearch: q,\n\t\t\tpage: DEF_PAGE\n\t\t});\n\t}\n\n\tonReset(key) {\n\t\treturn () => {\n\t\t\tvar reset = (k, v) => {\n\t\t\t\tlet newFields = {loaded: false};\n\t\t\t\tnewFields[k] = v;\n\t\t\t\tthis.rewrite = true;\n\t\t\t\tthis.setState(Object.assign(this.state, newFields));\n\t\t\t}\n\n\t\t\tswitch(key) {\n\t\t\t\tcase 'search': reset('search', null); break;\n\t\t\t\tdefault: return;\n\t\t\t}\n\t\t}\n\t}\n\n\tincrementPage() {\n\t\tthis.updateStateWithLoader({\n\t\t\tpage: this.state.page + 1\n\t\t}, false);\n\t}\n\n\tresetState() {\n\t\tthis.resetStateWith();\n\t}\n\n\tonCancel() {\n\t\tthis.resetStateWith({}, true);\n\t}\n\n\tonClearBookmarks() {\n\t\tFavorites.unset(\n\t\t\tthis.animes.filter(anime => Favorites.exists(anime.id))\n\t\t\t\t.map(anime => anime.id)\n\t\t);\n\t}\n\n\tmakeBookmarksList(animes) {\n\t\treturn (\n\t\t\t<div className=\"favorites__list\">\n\t\t\t\t<div style={{display: 'flex', padding: \"10px 10px 5px 10px\", color: 'white'}}>\n\t\t\t\t\t<span style={{flex: 1}}>Закладки</span>\n\t\t\t\t\t<img\n\t\t\t\t\t\tonClick={this.onClearBookmarks.bind(this)}\n\t\t\t\t\t\tclassName=\"tools__button small\"\n\t\t\t\t\t\tsrc=\"/images/cancel.svg\"\n\t\t\t\t\t\ttitle=\"Очистить закладки\"\n\t\t\t\t\t/>\n\t\t\t\t</div>\n\t\t\t\t{animes.map((anime, i) =>\n\t\t\t\t\t<Anime\n\t\t\t\t\t\tkey={i}\n\t\t\t\t\t\toptions={anime}\n\t\t\t\t\t\tfavoritable=\"true\"\n\t\t\t\t\t\tuseFavorites=\"true\"\n\t\t\t\t\t\tlist={this.props.list}\n\t\t\t\t\t\tonChangeList={this.onChangeList.bind(this)}\n\t\t\t\t\t/>)}\n\t\t\t</div>\n\t\t);\n\t}\n\n\tmakeList() {\n\t\tconst bookmarks = this.props.useFavorites\n\t\t\t? this.animes.filter(anime =>\n\t\t\t\t\tFavorites.exists(anime.id))\n\t\t\t: []\n\n\t\tconst animes = this.props.useFavorites\n\t\t\t? this.animes.filter(anime =>\n\t\t\t\t\t!Favorites.exists(anime.id))\n\t\t\t: this.animes;\n\n\t\treturn (\n\t\t\t<div style={{height: this.props.listHeight+'px'}} className=\"animes__list\" id={this.listID}>\n\t\t\t\t{this.props.useFavorites && bookmarks.length > 0\n\t\t\t\t\t? this.makeBookmarksList(bookmarks)\n\t\t\t\t\t: null}\n\t\t\t\t{animes.map((anime, i) =>\n\t\t\t\t\t\t<Fragment key={i}>\n\t\t\t\t\t\t\t<Anime\n\t\t\t\t\t\t\t\toptions={anime}\n\t\t\t\t\t\t\t\tuseFavorites={this.props.useFavorites}\n\t\t\t\t\t\t\t\tlist={this.props.list}\n\t\t\t\t\t\t\t\tonChangeList={this.onChangeList.bind(this)}\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t\t{i % this.props.limit == 0 && i >= this.props.limit\n\t\t\t\t\t\t\t\t? <div className=\"hr-with-text\">\n\t\t\t\t\t\t\t\t\t\t{Math.round(i / this.props.limit + 1)} страница\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t: null\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t</Fragment>\n\t\t\t\t\t)}\n\t\t</div>);\n\t}\n\n\tsearchOnShiki() {\n\t\tconst {search, sort, filter} = this.state;\n\t\tconst url = shikimoriURLMake(search, sort,\n\t\t\t\t(!compare(DEF_FILTER, filter) ? filter : null));\n\n\t\twindow.open(url, '_blank');\n\t}\n\n\tmakeButtonsForEmptyList() {\n\t\treturn (<Fragment>\n\t\t\t<button className=\"main__button\" onClick={this.onCancel.bind(this)}>\n\t\t\t\tсбросит\n\t\t\t</button>\n\t\t\t<button className=\"main__button\" onClick={this.searchOnShiki.bind(this)}>\n\t\t\t\tискать на шикимори\n\t\t\t</button>\n\t\t</Fragment>);\n\t}\n\n\tonChangeList(list, id) {\n\t\tAnimeModel.updateRate(id, {\n\t\t\tstatus: list\n\t\t})\n\t\t.then(() => {\n\t\t\tdispatch('changeList', {\n\t\t\t\tfrom: this.props.list,\n\t\t\t\tto: list,\n\t\t\t\tid\n\t\t\t});\n\t\t});\n\t}\n\n\trender() {\n\t\tconst {filter, search} = this.state;\n\n\t\treturn (<div>\n\t\t\t<div className=\"filter\">\n\t\t\t\t<Search onApply={this.applySearch} onReset={this.onReset('search')} q={search}/>\n\t\t\t\t<div style={{display: 'inline-block', float: 'right'}}>\n\t\t\t\t\t<Sort onApply={this.applySorting} onReset={this.onReset('sort')} active={this.state.sort}/>\n\t\t\t\t\t<Filter onApply={this.applyFilter} onReset={this.onReset('filter')} define={this.state.filter}/>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t{!this.state.loaded\n\t\t\t\t? <Loader />\n\t\t\t\t: this.animes.length == 0\n\t\t\t\t\t? <div className=\"auth_required\">\n\t\t\t\t\t\t\t<p>Нет ни одного аниме. ¯\\_(ツ)_/¯</p>\n\t\t\t\t\t\t\t{(!compare(DEF_FILTER, filter) || search != '')\n\t\t\t\t\t\t\t\t? this.makeButtonsForEmptyList()\n\t\t\t\t\t\t\t\t: null}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t: null}\n\t\t\t{this.makeList()}\n\t\t</div>);\n\t}\n}\n\nList.defaultProps = {\n\tlist: 'planned',\n\tlimit: 20,\n\tlistHeight: 510,\n\tuseFavorites: false\n};\n",
+			"file": "src/interface/anime/list.jsx",
+			"file_size": 8147,
+			"file_write_time": 132045862540956804,
+			"settings":
+			{
+				"buffer_size": 8066,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"t",
+				"Tint: Run Command"
+			],
+			[
+				"theme",
+				"UI: Select Color Scheme"
+			],
+			[
+				"tint",
+				"Tint: Run Command"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"them",
+				"UI: Select Theme"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"pa",
+				"Package Control: Install Package"
+			],
+			[
+				"ayu",
+				"ayu: Activate theme"
+			],
+			[
+				"the",
+				"UI: Select Theme"
+			],
+			[
+				"p",
+				"Package Control: Install Package"
+			],
+			[
+				"packa",
+				"Package Control: Install Package"
+			],
+			[
+				"Mte",
+				"Material Theme: Activate theme"
+			],
+			[
+				"ckage",
+				"Package Control: Install Package"
+			],
+			[
+				"",
+				"Package Control: Install Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"insta",
+				"ReactIDE: Switch between component and stylesheet"
+			],
+			[
+				"console",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 151.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/alexeygrigorev/projects/todonime-extension",
+		"/home/alexeygrigorev/projects/todonime-extension/src",
+		"/home/alexeygrigorev/projects/todonime-extension/src/interface",
+		"/home/alexeygrigorev/projects/todonime-extension/src/interface/anime"
+	],
+	"file_history":
+	[
+		"/home/alexeygrigorev/projects/todonime-extension/src/lib/url-maker.js",
+		"/home/alexeygrigorev/projects/todonime-extension/src/interface/share/auth.jsx",
+		"/home/alexeygrigorev/projects/todonime-extension/src/interface/anime/list.jsx",
+		"/home/alexeygrigorev/projects/todonime-extension/src/lib/shikimori-api.js",
+		"/home/alexeygrigorev/projects/todonime-extension/.env.production",
+		"/home/alexeygrigorev/projects/todonime-extension/.env.development",
+		"/home/alexeygrigorev/projects/todonime-extension/.sublime-project",
+		"/home/alexeygrigorev/projects/todonime-extension/public/manifest.json",
+		"/home/alexeygrigorev/projects/todonime-extension/.env.example",
+		"/home/alexeygrigorev/projects/todonime-extension/.sublime-build",
+		"/home/alexeygrigorev/projects/todonime-extension/src/entries/background.js",
+		"/home/alexeygrigorev/projects/todonime-extension/src/interface/anime/item.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/entries/shikimori-inject.js",
+		"/home/alexeygrigorev/projects/todonime/src/entries/background.js",
+		"/home/alexeygrigorev/projects/todonime/src/entries/inject.js",
+		"/home/alexeygrigorev/projects/todonime/src/lib/background-api.js",
+		"/home/alexeygrigorev/projects/todonime/webpack.config.js",
+		"/home/alexeygrigorev/projects/todonime/src/entries/settings.js",
+		"/home/alexeygrigorev/projects/todonime/src/entries/index.js",
+		"/home/alexeygrigorev/projects/todonime/src/lib/anime.js",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/list.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/lib/shikimori-api.js",
+		"/home/alexeygrigorev/projects/todonime/src/lib/notifications.js",
+		"/home/alexeygrigorev/projects/todonime/src/interface/share/auth.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/lib/messaging.js",
+		"/home/alexeygrigorev/projects/todonime/src/lib/tab-state.js",
+		"/home/alexeygrigorev/projects/todonime/src/app.js",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/tabs.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/item.jsx",
+		"/home/alexeygrigorev/projects/todonime/public/css/main.css",
+		"/home/alexeygrigorev/projects/todonime/package.json",
+		"/home/alexeygrigorev/projects/todonime/public/manifest.json",
+		"/home/alexeygrigorev/projects/todonime/src/interface/settings/settings.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/share/search.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/filter.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/lib/event.js",
+		"/tmp/fz3temp-2/footer.php",
+		"/tmp/fz3temp-2/header.php",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/on-hold.jsx",
+		"/tmp/fz3temp-2/init.php",
+		"/tmp/fz3temp-2/f7eda04e25ede2d3c004fafdbab4aeac.php",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/detail.jsx",
+		"/home/alexeygrigorev/projects/todonime/.gitignore",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/header-list.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/rewatch.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/complete.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/dropped.jsx",
+		"/home/alexeygrigorev/projects/todonime/public/css/shikimori-inject.css",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/header-item.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/tab.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/watch.jsx",
+		"/home/alexeygrigorev/projects/todonime/.babelrc",
+		"/home/alexeygrigorev/projects/todonime/src/entries/inject-todonime.js",
+		"/home/alexeygrigorev/projects/todonime/src/lib/connect.js",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/watch-re-watch.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/dropped-on-hold.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/sort.jsx",
+		"/home/alexeygrigorev/projects/todonime/public/options.html",
+		"/home/alexeygrigorev/projects/todonime/public/player.html",
+		"/home/alexeygrigorev/projects/todonime/src/lib/api.js",
+		"/home/alexeygrigorev/projects/todonime/src/lib/web-socket-api.js",
+		"/home/alexeygrigorev/projects/todonime/src/lib/calendar.js",
+		"/home/alexeygrigorev/projects/todonime/server/13-upd.csv",
+		"/home/alexeygrigorev/projects/todonime/server/count.txt",
+		"/home/alexeygrigorev/projects/todonime/server/script.php",
+		"/home/alexeygrigorev/projects/todonime/.env.development",
+		"/home/alexeygrigorev/projects/todonime/.env.production",
+		"/home/alexeygrigorev/projects/todonime/.env.example",
+		"/home/alexeygrigorev/projects/todonime/proxies.json",
+		"/home/alexeygrigorev/projects/todonime/.editorconfig",
+		"/home/alexeygrigorev/projects/todonime/src/lib/vpn.js",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/markers.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/lib/favorites.js",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/my-list-changer.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/score.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/bookmark.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/calendar/list.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/planned.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/calendar.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/short-item.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/share/select.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/share/picker.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/share/windows.jsx",
+		"/home/alexeygrigorev/projects/todonime/todonime.sublime-project",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/search.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/lib/anime.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/status.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/tools.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/share/loader.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/content/calendar.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/content/dropped.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/content/planned.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/content/watch.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/tabs/tab-header.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/anime/sorting.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/settings.js",
+		"/home/alexeygrigorev/projects/todonime/src/model/favorites.js",
+		"/home/alexeygrigorev/projects/todonime/src/model/webSocketApi.js",
+		"/home/alexeygrigorev/projects/todonime/src/model/settings.js",
+		"/home/alexeygrigorev/projects/todonime/src/model/api.js",
+		"/home/alexeygrigorev/projects/todonime/src/Settings.js",
+		"/home/alexeygrigorev/projects/todonime/src/interface/calendar.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/animes.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/misc.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/components/tabs.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/settings.jsx",
+		"/home/alexeygrigorev/projects/todonime/src/interface/styles/animes.scss",
+		"/home/alexeygrigorev/.config/sublime-text-3/Packages/User/nodejs.sublime-build"
+	],
+	"find":
+	{
+		"height": 24.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"await",
+			"showNotifies",
+			"API",
+			"DEF_FILTER",
+			"onChange",
+			"tab ",
+			", ",
+			".tabs__header-element",
+			"tabs__header-element",
+			"Отложил",
+			"api",
+			"small",
+			"230px",
+			"a:link",
+			"favorite",
+			"favortie",
+			"score",
+			"rating",
+			"favorites__list",
+			"Fvr",
+			"shikimori.org",
+			"search__input",
+			"filter",
+			"window",
+			".play",
+			"title",
+			"name",
+			"poster",
+			".tab",
+			".play",
+			"play",
+			"delete",
+			"anime",
+			"api",
+			"API",
+			".play",
+			"play"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"shikimori-api"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/interface/anime/list.jsx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8066,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6848,
+								6848
+							]
+						],
+						"settings":
+						{
+							"editorconfig": true,
+							"ensure_newline_at_eof_on_save": true,
+							"syntax": "Packages/Babel/JavaScript (Babel).sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": false,
+							"trim_trailing_white_space_on_save": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4030.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 66.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 121.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/User/nodejs.sublime-build",
+	"project": ".sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 224.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
