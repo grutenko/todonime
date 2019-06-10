@@ -1,20 +1,23 @@
+import {dispatch, subscribe} from './event';
+
 /*
 
 */
-export function setOption(name, value) {
-	localStorage[name] = value;
-	
-	document.dispatchEvent(
-		new Event('settingsUpdate')
-	);
+export function set(name, value) {
+	localStorage[name] = JSON.stringify(value);
+	dispatch('settingsUpdate');
+}
+
+export function get(name) {
+	return JSON.parse(localStorage[name] || null);
 }
 
 /*
 
 */
 export function onStorage(key, callback) {
-	addEventListener('storage', (e) => {
+	dispatch('storage', (e) => {
 		if(e.key != key) return;
 		callback(e);
-	});
+	})
 }
