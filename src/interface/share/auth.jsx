@@ -1,17 +1,15 @@
 import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 
-import {authorize} from '../../lib/shikimori-api';
+import {instance} from '../../lib/shikimori-api';
+import {request} from '../../lib/background-api';
+import {dispatch} from '../../lib/event';
 
 export default class Auth extends Component {
 	auth() {
-		authorize({
-			responseType: 'code',
-			redirectUri: chrome.identity.getRedirectURL('provider_cb')
-		})
-		.then(api => {
-			this.props.onAuth(api);
-		})
+		request('user.auth', {}, (response) => {
+			instance().then(api => dispatch('auth', {api}));
+		});
 	}
 
 	render() {
@@ -26,5 +24,5 @@ export default class Auth extends Component {
 				</button>
 			</div>
 		);
-	} 
+	}
 }
