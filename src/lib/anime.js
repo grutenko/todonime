@@ -52,7 +52,7 @@ const FILTER_KEYS = [
 
 /*
  * Deputy for API method getAnimes.
- * 
+ *
  * @param list 		string 	Filter for user lists (planned, watching, dropped, etc.). Default planned.
  * @param sort 		string 	Sorting data. Default rating
  * @param filter 	object	Filter data as {<filter-key>: <filter-data>}. Default {}
@@ -103,7 +103,7 @@ export function updateRate(rateID, data) {
 
 /**
  * Function set user rates data to anime. Add the current wathed series.
- * 
+ *
  * @param {array} animes animes from method GET /api/v1/animes
  * @param {array} rates  Current user animes rates from method GET /api/v2/user_rates
  *
@@ -114,16 +114,16 @@ function setRates(animes, rates) {
 		for(let i in rates) {
 			let rate = rates[i]
 			if(rate.target_id != anime.id) continue;
-				
+
 			anime = Object.assign(anime, {
 				watched: rate.episodes,
 				score: rate.score,
 				rate_id: rate.id
 			});
-				
+
 			break;
 		}
-			
+
 		return anime;
 	})
 }
@@ -142,8 +142,8 @@ function stringifyFilter(filter) {
 		if(FILTER_KEYS.indexOf(k) == -1) return;
 
 		preparedFilter[k] = !Array.isArray(filter[k])
-				? [filter[k]].join(',')
-				: filter[k].join(','); 
+				? filter[k]
+				: filter[k].join(',');
 	});
 
 	return preparedFilter;

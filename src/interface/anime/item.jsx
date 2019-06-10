@@ -7,6 +7,7 @@ import Bookmark from './bookmark';
 import Detail from './detail';
 import MylistChanger from './my-list-changer';
 import Window from '../share/windows';
+import {todonimeURLMake} from '../../lib/url-maker';
 
 import {add, unset} from '../../lib/favorites';
 import {dispatch} from '../../lib/event';
@@ -37,9 +38,9 @@ export default class Anime extends Component {
 		var {watched, episodes, id} = this.props.options;
 		var episode = onCurrent == true
 			? (watched > 0 ? watched : 1)
-			: (watched < episodes ? watched + 1 : 1); 
+			: (watched < episodes ? watched + 1 : 1);
 
-		window.open('https://todonime.space/video/'+id+'/'+episode, '_blank');
+		window.open(todonimeURLMake(id, episode), '_blank');
 	}
 
 	__toNextEpisode() {
@@ -152,7 +153,8 @@ export default class Anime extends Component {
 		if(
 			element.id != this.id
 			&& element.closest('#' + this.id) == null
-			&& this.state.showDetail) 
+			&& this.state.showDetail
+			&& process.env.DETAIL_ANIME_AUTOCLOSE)
 		{
 			this.toggleDetail();
 		}

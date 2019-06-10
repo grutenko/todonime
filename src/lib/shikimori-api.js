@@ -1,5 +1,5 @@
-export const clientID = process.env.CLIENT_ID;
-export const clientSecret = process.env.CLIENT_SECRET;
+export const clientID = process.env.SHIKIMORI_CLIENT_ID;
+export const clientSecret = process.env.SHIKIMORI_CLIENT_SECRET;
 
 /*
 
@@ -12,18 +12,18 @@ function rand() {
 
 */
 function parseRedirectFragment(fragment) {
-	var values = {};	
+	var values = {};
 	fragment.split(/&/).forEach(function(pair) {
 		var nameval = pair.split(/=/);
 		values[nameval[0]] = nameval[1];
 	});
-		
+
 	return values;
 }
 
 /*
 
-*/     	
+*/
 function getAuthorizationToken(code, redirectUri) {
 	var params = {
 		grant_type: "authorization_code",
@@ -32,7 +32,7 @@ function getAuthorizationToken(code, redirectUri) {
 	    code: code,
       redirect_uri: redirectUri
     };
-	
+
 	return new Promise((resolve, reject) => {
 		$.ajax({
 			url:"https://shikimori.one/oauth/token",
@@ -59,7 +59,7 @@ export function instance() {
 			reject(new Error("Cant create instance of api without session token."))
 		});
 	}
-	
+
 	var sessionData = JSON.parse(localStorage.shikimori_session);
 	return new Promise((resolve, reject) => {
 		request(sessionData.access_token, "/users/whoami/", {}).then(
@@ -76,15 +76,20 @@ export function instance() {
 /*
 
 */
-export function authorize({responseType, redirectUri}) {
+export function authorize(options) {
+	const {responseType, redirectUri} = options || {
+			responseType: 'code',
+			redirectUri: chrome.identity.getRedirectURL('provider_cb')
+		};
+
 	return new Promise((resolve, reject) => {
 		if(localStorage.shikimori_session != null) {
 			instance().then(api => resolve(api), error => reject(error));
 			return;
 		}
-	
+
 		var redirectRgx = new RegExp(redirectUri + '[#\?](.*)');
-		
+
 		var options = {
 		    'interactive': true,
 		    'url': "https://shikimori.one/oauth/authorize"+
@@ -92,13 +97,13 @@ export function authorize({responseType, redirectUri}) {
 		           '&redirect_uri=' + encodeURIComponent(redirectUri) +
 		           '&response_type=' + responseType
        	};
-       		
+
        	chrome.identity.launchWebAuthFlow(options, (Uri) => {
        		if(chrome.runtime.lastError) {
 				reject(new Error(chrome.runtime.lastError.message));
 				return;
 			}
-			
+
 			var matches = Uri.match(redirectRgx);
 			if(matches && matches.length > 1) {
 				var values = parseRedirectFragment(matches[1]);
@@ -122,7 +127,7 @@ function refresh(clientID, clientSecret, refreshToken) {
 		client_secret: clientSecret,
 		refresh_token: refreshToken
 	};
-	
+
 	return new Promise((resolve, reject) => {
 		$.ajax({
 			url: "https://shikimori.one/oauth/token",
@@ -141,7 +146,7 @@ function request(token, path, params, method, auth) {
 	return new Promise((resolve, reject) => {
 		method = (method === undefined ? "GET" : method);
 		auth = (auth === undefined ? true : auth);
-			
+
 		let headers = auth
 			? {"Authorization": "Bearer " + token}
 			: {};
@@ -149,11 +154,11 @@ function request(token, path, params, method, auth) {
 		headers = Object.assign(headers, {
 			'Cache-Control': 'must-revalidate'
 		});
-			
+
 		params = ['POST', 'PATCH', 'PUT'].indexOf(method) != -1
 			? JSON.stringify(params)
 			: Object.assign(params, {rand: rand()});
-			
+
 		$.ajax({
 			url:"https://shikimori.one/api" + path,
 			type: method,
@@ -179,10 +184,10 @@ export default class ShikimoriAPI {
 		this.createdAt = params.created_at;
 		this.expriesIn = params.expries_in;
 		this.tokenType = params.token_type;
-		
+
 		this.currentUser = currentUser;
 	}
-	
+
 	/*
 
 	*/
@@ -194,11 +199,11 @@ export default class ShikimoriAPI {
 		).then((data) => {
 			this.expriesIn = data.expriesIn;
 			this.createdAt = data.createdAt;
-			
+
 			return data;
 		})
 	}
-	
+
 	/*
 
 	*/
@@ -217,19 +222,19 @@ export default class ShikimoriAPI {
 			});
 		}
 	}
-	
+
 	/*
 
 	*/
 	__request(path, params, method, auth) {
 		params = params || {};
-		
+
 		if(new Date().getTime() >= this.expriesIn) {
 			return this.__refresh().then((data) => {
 				return this.__request(path, params, method, auth);
 			});
 		}
-		
+
 		return request(
 			this.token, path, params, method, auth
 		)
@@ -239,14 +244,14 @@ export default class ShikimoriAPI {
 			);
 		});
 	}
-	
+
 	/*
 
 	*/
 	getCurrentUser() {
 		return this.currentUser;
 	}
-	
+
 	/*
 	user_id											Must be a number.
 	target_id										Must be a number.
@@ -259,14 +264,14 @@ export default class ShikimoriAPI {
 	getUserRates(params) {
 		return this.__request("/v2/user_rates/", params, "GET", true);
 	}
-	
+
 	/*
-	
+
 	*/
 	whoame() {
 		return this.__request("/users/whoame/", {}, "GET", true);
 	}
-	
+
 	/*
 		limit							count messages for page
 		page							page number 1,2,...
@@ -274,14 +279,14 @@ export default class ShikimoriAPI {
 	getDialogs(props) {
 		return this.__request("/dialogs/", props, "GET", true);
 	}
-	
+
 	/*
-	
+
 	*/
 	deleteDialog(ID) {
 		return this.__request("/dialogs/"+ID, {}, "DELETE", true);
 	}
-	
+
 	/*
 		userID							Dialog "to" user id.
 		limit							count messages for page
@@ -290,14 +295,14 @@ export default class ShikimoriAPI {
 	getDialogMessages(params) {
 		return this.__request("/dialogs/"+params.userID+"/", params, "GET", true);
 	}
-	
+
 	/*
 		messageID						Message id
 	*/
 	getMessage(messageID) {
 		return this.__request("/messages/"+messageID+"/", {}, "GET", true);
 	}
-	
+
 	/*
 		frontend						true|false
 		message							object {
@@ -310,7 +315,7 @@ export default class ShikimoriAPI {
 	addMessage(params) {
 		return this.__request("/messages", params, "POST", true);
 	}
-	
+
 	/*
 		ids								mark readed message ids 1,5345,...
 		is_read							string "0" or "1"
@@ -318,7 +323,7 @@ export default class ShikimoriAPI {
 	readMessages(params) {
 		return this.__request("/messages/mark_read", params, "POST", true);
 	}
-	
+
 	/*
 		page							Number 1...100000
 		limit							Number maximum 50
@@ -339,9 +344,9 @@ export default class ShikimoriAPI {
 										ova,
 										ona,
 										special,
-										music, 
-										tv_13, 
-										tv_24, 
+										music,
+										tv_13,
+										tv_24,
 										tv_48
 										]
 		status							[
@@ -380,7 +385,7 @@ export default class ShikimoriAPI {
 	getAnime(ID) {
 		return this.__request('/animes/'+ID, {}, "GET");
 	}
-	
+
 	/*
 		page							Number 1...100000
 		limit							Number maximum 50
@@ -395,14 +400,14 @@ export default class ShikimoriAPI {
 	getUserNotifications(userID, params) {
 		return this.__request("/users/"+userID+"/messages", params);
 	}
-	
+
 	/*
-	
+
 	*/
 	getUserNotifiesCount(userID) {
 		return this.__request("/users/"+userID+"/unread_messages", {});
 	}
-		
+
 	/*
 		page 							Must be a number between 1 and 100000.
 		limit							100 maximum
@@ -410,16 +415,16 @@ export default class ShikimoriAPI {
 	getUserHistory(userID, params) {
 		return this.__request("/user/"+userID+"/history", params);
 	}
-	
+
 	/*
-	
+
 	*/
 	getUserFriends(userID) {
 		return this.__request("/users/"+userID+"/friends", {});
 	}
 
 	/*
-	
+
 	*/
 	getCalendar() {
 		return this.__request("/api/calendar", {});

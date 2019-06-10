@@ -1,7 +1,9 @@
 const REQUIRED_EVENT_PROPS = {
 	favorites: ['type', 'ids'],
 	toggleDetail: ['type', 'list', 'id', 'el'],
-	changeList: ['from', 'to', 'id']
+	changeList: ['from', 'to', 'id'],
+	settingsUpdate: [],
+	auth: ['api']
 }
 
 var listeners = {};

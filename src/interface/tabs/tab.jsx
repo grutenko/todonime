@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ReactDOM from 'react-dom';
 import ShikimoriAPI from '../../lib/shikimori-api';
 import Auth from '../share/auth';
+import {subscribe, unsubscribe} from '../../lib/event';
 
 export default class Tab extends Component {
 	constructor(props) {
@@ -9,6 +10,16 @@ export default class Tab extends Component {
 		this.state = {
 			active: this.props.active
 		}
+	}
+
+	componentWillMount() {
+		this.authEvent = subscribe('auth', ({detail}) => {
+			this.forceUpdate();
+		});
+	}
+
+	componentWillUnmount() {
+		unsubscribe(this.authEvent);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -26,7 +37,7 @@ export default class Tab extends Component {
 		var authRequired = this.props.children.props.auth;
 
 		return (<div className={tabClass}>
-			{authRequired != undefined && authRequired == "true" && !ShikimoriAPI.isAuth()
+			{authRequired == "true" && !ShikimoriAPI.isAuth()
 				? <Auth/>
 				: this.props.children}
 		</div>);

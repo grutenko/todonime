@@ -6,6 +6,7 @@ import * as AnimeModel from '../../lib/anime';
 import * as Favorites from '../../lib/favorites';
 import {compare} from '../../lib/compare';
 import {subscribe, unsubscribe, dispatch} from '../../lib/event';
+import {shikimoriURLMake} from '../../lib/url-maker';
 
 import Anime from './item';
 import Search from '../share/search';
@@ -37,7 +38,7 @@ export default class List extends Component {
 	 * The method updates the state of the component and sets the value of loaded as false.
 	 * This is necessary to show the loader and send ajax request for data. Look at the
 	 * componentDidUpdate() method for details.
-	 * 
+	 *
 	 * @param  {object} state Object with state data to be changed
 	 * @param  {boolean} state If true - current anime list rewrited else added to end.
 	 */
@@ -51,7 +52,7 @@ export default class List extends Component {
 	/**
 	 * The method returns the component to its original state, while adding values ​​from the
 	 * state parameter. Required for example to reset the filter and sort when searching.
-	 * 
+	 *
 	 * @param {object} state Object with state data to be changed
  	 * @param  {boolean} state If true - current anime list rewrited else added to end.
 	 */
@@ -79,7 +80,7 @@ export default class List extends Component {
 
 		$('#'+this.listID).scroll((e) => {
 			var list = $(e.currentTarget);
-			
+
 			if(list.prop('scrollHeight') - list.scrollTop() <= 600
 				&& !this.state.isLastPage
 				&& this.state.loaded)
@@ -267,6 +268,38 @@ export default class List extends Component {
 		</div>);
 	}
 
+	searchOnShiki() {
+		const {search, sort, filter} = this.state;
+		const url = shikimoriURLMake(search, sort,
+				(!compare(DEF_FILTER, filter) ? filter : null));
+
+		window.open(url, '_blank');
+	}
+
+	makeButtonsForEmptyList() {
+		return (
+			<Fragment>
+				<button className="main__button" onClick={this.onCancel.bind(this)}>
+					сбросить
+				</button>
+				<button className="main__button" onClick={this.searchOnShiki.bind(this)}>
+					искать на шикимори
+				</button>
+			</Fragment>);
+	}
+
+	makeEmptyListBlock() {
+		const {filter, search} = this.state;
+
+		return (
+			<div className="auth_required">
+				<p>Нет ни одного аниме. ¯\_(ツ)_/¯</p>
+				{(!compare(DEF_FILTER, filter) || search != '')
+					? this.makeButtonsForEmptyList()
+					: null}
+			</div>);
+	}
+
 	onChangeList(list, id) {
 		AnimeModel.updateRate(id, {
 			status: list
@@ -291,17 +324,10 @@ export default class List extends Component {
 					<Filter onApply={this.applyFilter} onReset={this.onReset('filter')} define={this.state.filter}/>
 				</div>
 			</div>
-			{!this.state.loaded 
-				? <Loader /> 
+			{!this.state.loaded
+				? <Loader />
 				: this.animes.length == 0
-					? <div className="auth_required">
-							<p>Нет ни одного аниме. ¯\_(ツ)_/¯</p>
-							{(!compare(DEF_FILTER, filter) || search != '')
-								? <button className="main__button" onClick={this.onCancel.bind(this)}>
-										сбросить фильтры
-									</button>
-								: null}
-						</div>
+					? this.makeEmptyListBlock()
 					: null}
 			{this.makeList()}
 		</div>);

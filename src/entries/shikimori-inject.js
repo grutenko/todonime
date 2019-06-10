@@ -1,22 +1,7 @@
-var store = {};
+import {request} from '../lib/background-api';
+import {todonimeURLMake} from '../lib/url-maker';
 
-function send(message, callback) {
-    const storeID = Math.floor(Math.random()*1000);
-    chrome.runtime.sendMessage(Object.assign(message, {storeID}));
-    
-    store[storeID] = callback;
-}
-
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-	if(request.storeID == -1) {
-		var url = location.href.match(/\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/);
-		if(url[1]) makeButton(url);
-	}
-
-  store[request.storeID](request);
-});
-
-function createButton(url) {
+function createButtonElement(url) {
 	var button = $('<section></section>')
 		.addClass('block')
 		.addClass('watch-online-block');
@@ -27,24 +12,30 @@ function createButton(url) {
 	$('.watch-online-placeholer').html(button);
 }
 
-function makeButton(url) {
-	send({
-			c: 'get-anime',
-			data: {anime_id: url[1]}
-		},
-		({anime}) => {
-			if(anime.status == 'anons') return;
+function makeButton(arUrl) {
+	request('anime.get', {anime_id: arUrl[1]}, anime => {
+		if(status == 'anons') return;
 
-			const rate = anime.user_rate;
-			const episode = !rate
-				? 1
-				: ((anime.status == 'ongoing' && rate.episodes < anime.episodes_aired) || (anime.status == 'released' && rate.episodes < anime.episodes)
-						? rate.episodes + 1
-						: rate.episodes);
+		const {status, episodes_aired, episodes, user_rate} = anime;
+		const episode = user_rate
+				? ((status == 'ongoing' && user_rate.episodes < episodes_aired)
+							|| (status == 'released' && user_rate.episodes < episodes)
+						? user_rate.episodes + 1
+						: user_rate.episodes)
+				: 1;
 
-			createButton('https://todonime.space/video/'+url[1]+'/' + episode + '?back='+location.href)
-		});
+		createButtonElement(todonimeURLMake(anime.id, episode));
+	})
 }
 
-var url = location.href.match(/\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/);
-if(url != null) makeButton(url);
+function start() {
+	var url = location.href.match(/\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/);
+	if(url != null) makeButton(url);
+
+	request('event.onTabUpdate',
+			{urlMatch: /shikimori\.[org|one]\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/},
+			start);
+}
+
+start();
+
