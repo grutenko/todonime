@@ -26,21 +26,21 @@
     "scripts": ["js/background.js"]
   },
   "permissions": [
-	 "notifications",
+	  "notifications",
   	"identity",
-  	"activeTab",
+  	"tabs",
   	"storage",
     "https://shikimori.one/*",
     "https://shikimori.org/*",
     "https://todonime.space/*"
   ],
   "browser_action": {
-        "default_title": "Todonime",
-        "default_icon": {
-        	"32":"images/logotype-32x32.png",
-        	"48":"images/logotype-48x48.png",
-        	"128":"images/logotype-128x128.png"
-        },
-        "default_popup": "index.html"
-    }	
+    "default_title": "Todonime",
+    "default_icon": {
+      "32":"images/logotype-32x32.png",
+      "48":"images/logotype-48x48.png",
+      "128":"images/logotype-128x128.png"
+    },
+    "default_popup": "index.html"
+  }	
 }
