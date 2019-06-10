@@ -9,12 +9,14 @@ import RewatchTab from './interface/tabs/rewatch';
 import CompleteTab from './interface/tabs/complete';
 import OnHoldTab from './interface/tabs/on-hold';
 
+import {get} from './lib/settings';
+
 
 export default class App extends Component {
 	render() {
 		return (
 			<div className="app__container">
-				<Tabs activeTab="1" showSettingsButton={true}>
+				<Tabs activeTab={get('activeTab') || 1} showSettingsButton={true}>
 					<PlannedTab iconName="add" name="Запланировано" auth="true"/>
 					<WatchTab iconName="play_arrow" name="Смотрю" auth="true"/>
 					<RewatchTab iconName="replay" name="Пересматриваю" auth="true"/>
