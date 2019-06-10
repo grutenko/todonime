@@ -67,7 +67,7 @@ async function start() {
 if(ShikimoriAPI.isAuth())
 	start();
 else
-	window.onstorage = (e) => {
+	window.addEventListener("storage", (e) => {
 		if(e.key == 'shikimori_session')
 				start();
-	};
+	}, false);
