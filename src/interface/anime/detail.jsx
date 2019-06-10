@@ -11,9 +11,17 @@ import 'moment/locale/ru';
 export default class Detail extends Component {
 	constructor(props) {
 		super(props);
-		this.state = {loaded: false};
+		this.state = {
+			loaded: false,
+			animeID: this.props.animeID
+		};
 
 		this.anime = null;
+	}
+
+	componentDidUpdate(prevProps) {
+		if(prevProps.animeID != this.props.animeID)
+			this.setState({animeID: this.props.animeID});
 	}
 
 	__makeStudioLink(studio) {
@@ -72,7 +80,7 @@ export default class Detail extends Component {
 		return (<div style={{margin: '10px 0'}}>
 			<div>
 				<span className="b-key">Статус:</span>
-					<span className="tag status">{this.anime.status}</span> 
+					<span className="tag status">{this.anime.status}</span>
 					{this.__getAnimeDates()}
 			</div>
 			<div>
@@ -95,7 +103,7 @@ export default class Detail extends Component {
 					<Score
 						value={this.anime.score}
 						insideRates={this.anime.rates_scores_stats}
-						insideDefault="true" 
+						insideDefault="true"
 					/>
 					{this.makeStudios()}
 				</div>
