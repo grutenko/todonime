@@ -1,18 +1,6 @@
 import PNotify from 'pnotify/dist/es/PNotify';
 import PNotifyButtons from 'pnotify/dist/es/PNotifyButtons';
-
-var store = {};
-
-function send(message, callback) {
-    const storeID = Math.floor(Math.random()*1000);
-    chrome.runtime.sendMessage(Object.assign(message, {storeID}));
-    
-    store[storeID] = callback;
-}
-
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-		store[request.storeID](request);
-});
+import {request} from '../lib/background-api';
 
 function meta(name) {
 	const metas = document.getElementsByTagName('meta');
@@ -26,7 +14,7 @@ function meta(name) {
   return '';
 }
 
-send({c:'whoami'}, ({response}) => {
+request('user.current', {}, response => {
 	$('.account').html(
 		$('<a class="no-margin" href="https://shikimori.one/'+response.nickname+'">'+
 			'<img style="border-radius: 50%;" class="avatar__min" src="'+response.image.x48+'">' +
@@ -35,8 +23,8 @@ send({c:'whoami'}, ({response}) => {
 	);
 })
 
-function setWatchButton({response, rateID}) {
-	if(response) {
+function setWatchButton({isWatched, rateID}) {
+	if(isWatched) {
 			$(".b-click-watched")
 				.addClass('watched')
 				.attr('title', 'Серия просмотрена');
@@ -68,31 +56,21 @@ $(".b-click-watched:not(.watched)").on('click', (e) => {
 	if($(e.currentTarget).hasClass('watched')) return;
 
 	if($(e.currentTarget).attr('data-rate-id') === undefined) {
-		send({
-			c: 'add-rate',
-			data: {
-				anime_id: meta('anime:id'),
-		    episode: meta('anime:episode')
-			}
+		request('anime.addRate', {
+			anime_id: meta('anime:id'),
+		   episode: meta('anime:episode')
 		}, setWatchButtonWithHref);
 
 		return;
 	}
 
-	send({
-		c: 'send-watch',
-		data: {
-			anime_id: meta('anime:id'),
-	    	episode: meta('anime:episode'),
-	    	rateID: $(e.currentTarget).attr('data-rate-id')
-		}
+	request('anime.episode.watch', {
+		anime_id: meta('anime:id'),
+	  episode: meta('anime:episode'),
 	}, setWatchButtonWithHref)
 })
 
-send({
-	  c: 'watched',
-	  data: {
-	    anime_id: meta('anime:id'),
-	    episode: meta('anime:episode')
-    }
+request('anime.episode.isWatched', {
+	anime_id: meta('anime:id'),
+	episode: meta('anime:episode')
 }, setWatchButton);
