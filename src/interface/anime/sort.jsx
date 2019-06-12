@@ -9,6 +9,7 @@ export default class Sort extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {show: false};
+		this.id = Math.floor(Math.random * 1000);
 	}
 
 	onSelect(code) {
@@ -48,10 +49,29 @@ export default class Sort extends Component {
 		});
 	}
 
+	onMouseOut(e) {
+		const element = e.nativeEvent.relatedTarget;
+
+		if(element == null) {
+			if(this.state.show) this.setState({show: false});
+			return;
+		}
+
+		if(element.id != this.id
+			&& element.closest('#' + this.id) == null
+			&& this.state.show)
+		{
+			this.setState({show: false})
+		}
+	}
+
 	render() {
-		return (<span>
-			<i className="material-icons tools__button" onClick={this.toggle.bind(this)}>sort_by_alpha</i>
-			{this.state.show ? this.makeWindow() : null}
+		return (<span
+				id={this.id}
+				onMouseOut={this.onMouseOut.bind(this)}
+			>
+				<i className="material-icons tools__button" onClick={this.toggle.bind(this)}>sort_by_alpha</i>
+				{this.state.show ? this.makeWindow() : null}
 		</span>);
 	}
 }

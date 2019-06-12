@@ -14,6 +14,8 @@ export default class Filter extends Component {
 			show: false,
 			filter: this.props.define
 		};
+
+		this.id = Math.floor(Math.random * 1000);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -36,7 +38,7 @@ export default class Filter extends Component {
 			options={options}
 			define={format(options, define)}
 			name={name}
-			onChange={callback} 
+			onChange={callback}
 		/>
 	}
 
@@ -93,8 +95,24 @@ export default class Filter extends Component {
 		});
 	}
 
+	onMouseOut(e) {
+		const element = e.nativeEvent.relatedTarget;
+
+		if(element == null) {
+			if(this.state.show) this.setState({show: false});
+			return;
+		}
+
+		if(element.id != this.id
+			&& element.closest('#' + this.id) == null
+			&& this.state.show)
+		{
+			this.setState({show: false})
+		}
+	}
+
 	render() {
-		return (<span>
+		return (<span id={this.id} onMouseOut={this.onMouseOut.bind(this)}>
 			{this.state.show ? this.makeWindow() : null}
 			<i className="material-icons tools__button"
 			   onClick={this.toggle.bind(this)}
