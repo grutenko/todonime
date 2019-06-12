@@ -7,6 +7,7 @@ import * as Favorites from '../../lib/favorites';
 import {compare} from '../../lib/compare';
 import {subscribe, unsubscribe, dispatch} from '../../lib/event';
 import {shikimoriURLMake} from '../../lib/url-maker';
+import {get, set} from '../../lib/settings';
 
 import Anime from './item';
 import Search from '../share/search';
@@ -24,7 +25,10 @@ const DEF_FILTER = {
 export default class List extends Component {
 	constructor(props) {
 		super(props);
-		this.state = this.__defaultState();
+		this.state = this.__defaultState(
+			get('tabState_'+this.props.list)
+		);
+
 		this.animes = [];
 		this.listID = "list__"+ Math.floor(Math.random() * 1000);
 		this.rewrite = true;
@@ -125,6 +129,11 @@ export default class List extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		if(!this.state.loaded) {
 			this.getAnimes(this.rewrite);
+
+			const {filter, sort, search} = this.state;
+			set('tabState_'+this.props.list, {
+				filter, sort, search
+			});
 		}
 	}
 
@@ -234,33 +243,37 @@ export default class List extends Component {
 	}
 
 	makeList() {
-		const bookmarks = this.props.useFavorites
+		const {filter, search} = this.state;
+		const {listHeight, useFavorites, list, limit} = this.props;
+
+		const bookmarks = useFavorites
 			? this.animes.filter(anime =>
 					Favorites.exists(anime.id))
 			: []
 
-		const animes = this.props.useFavorites
+		const animes = useFavorites
 			? this.animes.filter(anime =>
 					!Favorites.exists(anime.id))
 			: this.animes;
 
 		return (
-			<div style={{height: this.props.listHeight+'px'}} className="animes__list" id={this.listID}>
-				{this.props.useFavorites && bookmarks.length > 0
+			<div style={{height: listHeight+'px'}} className="animes__list" id={this.listID}>
+				{(!compare(DEF_FILTER, filter) || search != null)
+					? this.makeButtonsForEmptyList()
+					: null}
+				{useFavorites && bookmarks.length > 0
 					? this.makeBookmarksList(bookmarks)
 					: null}
 				{animes.map((anime, i) =>
 						<Fragment key={i}>
 							<Anime
 								options={anime}
-								useFavorites={this.props.useFavorites}
-								list={this.props.list}
+								useFavorites={useFavorites}
+								list={list}
 								onChangeList={this.onChangeList.bind(this)}
 							/>
-							{i % this.props.limit == 0 && i >= this.props.limit
-								? <div className="hr-with-text">
-										{Math.round(i / this.props.limit + 1)} страница
-									</div>
+							{i % limit == 0 && i >= limit
+								? <div className="hr-with-text">{Math.round(i / limit + 1)} страница</div>
 								: null
 							}
 						</Fragment>
@@ -278,26 +291,14 @@ export default class List extends Component {
 
 	makeButtonsForEmptyList() {
 		return (
-			<Fragment>
+			<div className="auth_required"><p>
 				<button className="main__button" onClick={this.onCancel.bind(this)}>
 					сбросить
 				</button>
 				<button className="main__button" onClick={this.searchOnShiki.bind(this)}>
 					искать на шикимори
 				</button>
-			</Fragment>);
-	}
-
-	makeEmptyListBlock() {
-		const {filter, search} = this.state;
-
-		return (
-			<div className="auth_required">
-				<p>Нет ни одного аниме. ¯\_(ツ)_/¯</p>
-				{(!compare(DEF_FILTER, filter) || search != '')
-					? this.makeButtonsForEmptyList()
-					: null}
-			</div>);
+			</p></div>);
 	}
 
 	onChangeList(list, id) {
@@ -327,7 +328,7 @@ export default class List extends Component {
 			{!this.state.loaded
 				? <Loader />
 				: this.animes.length == 0
-					? this.makeEmptyListBlock()
+					? <div className="auth_required"><p>Нет ни одного аниме. ¯\_(ツ)_/¯</p></div>
 					: null}
 			{this.makeList()}
 		</div>);
@@ -337,6 +338,6 @@ export default class List extends Component {
 List.defaultProps = {
 	list: 'planned',
 	limit: 20,
-	listHeight: 510,
+	listHeight: 500,
 	useFavorites: false
 };
