@@ -5,7 +5,7 @@ import Animes from '../anime/list';
 export default class OnHoldTab extends Component {
 	render() {
 		return (<div className="tab__on-hold">
-			<Animes list="on_hold" limit="20" listHeight="510"/>
+			<Animes list="on_hold" limit="20"/>
 		</div>);
 	}
 }

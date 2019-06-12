@@ -5,7 +5,9 @@ import {dispatch, subscribe} from './event';
 */
 export function set(name, value) {
 	localStorage[name] = JSON.stringify(value);
-	dispatch('settingsUpdate');
+	dispatch('settingsUpdate', {
+		key: name, value
+	});
 }
 
 export function get(name) {
@@ -16,7 +18,7 @@ export function get(name) {
 
 */
 export function onStorage(key, callback) {
-	dispatch('storage', (e) => {
+	subscribe('storage', (e) => {
 		if(e.key != key) return;
 		callback(e);
 	})

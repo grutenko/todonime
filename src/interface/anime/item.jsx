@@ -21,7 +21,6 @@ export default class Anime extends Component {
 		};
 
 		this.id = 'anime-' + this.props.options.id;
-
 		this.ref = React.createRef();
 	}
 
