@@ -16,13 +16,13 @@ export default class App extends Component {
 	render() {
 		return (
 			<div className="app__container">
-				<Tabs activeTab={get('activeTab') || 1} showSettingsButton={true}>
+				<Tabs activeTab={get('activeTab') != null ? get('activeTab') : 1} showSettingsButton={true}>
 					<PlannedTab iconName="add" name="Запланировано" auth="true"/>
 					<WatchTab iconName="play_arrow" name="Смотрю" auth="true"/>
 					<RewatchTab iconName="replay" name="Пересматриваю" auth="true"/>
-					<DroppedTab iconName="delete" name="Брошено" auth="true"/>
 					<OnHoldTab iconName="pause" name="Отложено" auth="true"/>
 					<CompleteTab iconName="check" name="Просмотрено" auth="true"/>
+					<DroppedTab iconName="delete" name="Брошено" auth="true"/>
 				</Tabs>
 			</div>
 		)
