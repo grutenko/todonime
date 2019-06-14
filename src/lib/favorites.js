@@ -1,13 +1,12 @@
 import {dispatch} from './event';
+import * as Settings from './settings';
 
 /**
  * Get favorites array from local storage
  * @return {array} array as [anime_ids]
  */
 export function get() {
-	if(localStorage.favorites == null)
-			localStorage.favorites = "[]";
-	return JSON.parse(localStorage.favorites);
+	return Settings.get('favorites') || [];
 }
 
 /**
@@ -31,7 +30,8 @@ export function add(ids) {
 		if(exists(ids[i])) continue;
 		favorites.push(ids[i]);
 	}
-	localStorage.favorites = JSON.stringify(favorites);
+
+	Settings.set('favorites', favorites);
 	dispatch('favorites', {type: 'add', ids});
 }
 
@@ -48,6 +48,6 @@ export function unset(ids) {
 		favorites.splice(favorites.indexOf(ids[i]), 1);
 	}
 
-	localStorage.favorites = JSON.stringify(favorites);
+	Settings.set('favorites', favorites);
 	dispatch('favorites', {type: 'delete', ids});
 }
