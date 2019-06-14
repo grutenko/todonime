@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import Window from '../share/windows';
 import Picker from '../share/picker';
+import AutoCloseModal from '../share/autoclose-modal';
 
 import {compare} from '../../lib/compare';
 import {KIND, RATING} from '../../lib/anime';
@@ -11,11 +12,8 @@ export default class Filter extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			show: false,
 			filter: this.props.define
 		};
-
-		this.id = Math.floor(Math.random * 1000);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -42,14 +40,6 @@ export default class Filter extends Component {
 		/>
 	}
 
-	onChangeKind(codes) {
-		this.change('kind', codes);
-	}
-
-	onChangeRating(codes) {
-		this.change('rating', codes);
-	}
-
 	change(key, codes) {
 		this.setState((state, props) => {
 			return {
@@ -60,9 +50,25 @@ export default class Filter extends Component {
 		})
 	}
 
+	onChangeKind(codes) {
+		this.change('kind', codes);
+	}
+
+	onChangeRating(codes) {
+		this.change('rating', codes);
+	}
+
 	onApply() {
 		this.props.onApply(this.state.filter);
 		this.setState({show: false});
+	}
+
+	__toObject(arCodeName) {
+		var codeNameObj = {};
+		for(let i in arCodeName)
+			codeNameObj[arCodeName[i].code] = arCodeName[i].name;
+
+		return codeNameObj;
 	}
 
 	makeWindow() {
@@ -81,44 +87,12 @@ export default class Filter extends Component {
 		);
 	}
 
-	__toObject(arCodeName) {
-		var codeNameObj = {};
-		for(let i in arCodeName)
-			codeNameObj[arCodeName[i].code] = arCodeName[i].name;
-
-		return codeNameObj;
-	}
-
-	toggle() {
-		this.setState({
-			show: !this.state.show
-		});
-	}
-
-	onMouseOut(e) {
-		const element = e.nativeEvent.relatedTarget;
-
-		if(element == null) {
-			if(this.state.show) this.setState({show: false});
-			return;
-		}
-
-		if(element.id != this.id
-			&& element.closest('#' + this.id) == null
-			&& this.state.show)
-		{
-			this.setState({show: false})
-		}
-	}
-
 	render() {
-		return (<span id={this.id} onMouseOut={this.onMouseOut.bind(this)}>
-			{this.state.show ? this.makeWindow() : null}
-			<i className="material-icons tools__button"
-			   onClick={this.toggle.bind(this)}
+		return (
+			<AutoCloseModal
+				button={<i className="material-icons tools__button">filter_list</i>}
 			>
-				filter_list
-			</i>
-		</span>);
+				{this.makeWindow()}
+			</AutoCloseModal>);
 	}
 }
