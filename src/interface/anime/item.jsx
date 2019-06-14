@@ -5,6 +5,7 @@ import Markers from './markers';
 import Status from './status';
 import Bookmark from './bookmark';
 import Detail from './detail';
+import Share from './share';
 import MylistChanger from './my-list-changer';
 import Window from '../share/windows';
 import {todonimeURLMake} from '../../lib/url-maker';
@@ -51,7 +52,7 @@ export default class Anime extends Component {
 	}
 
 	onChangeSeries(e) {
-
+		this.setState({showEpisodeChanger: !this.state.showEpisodeChanger})
 	}
 
 	makeWatchedSeries() {
@@ -64,7 +65,12 @@ export default class Anime extends Component {
 				{this.__getWatchedSeries()}
 				{this.state.showEpisodesChanger
 					? <Window>
-							<input type="text" style={{width: '20px'}} defaultValue={this.props.options.watched} focus="true"/>
+							<input
+								type="text"
+								style={{width: '20px'}}
+								defaultValue={this.props.options.watched}
+								focus="true"
+							/>
 						</Window>
 						: null}
 			</span>);
@@ -99,7 +105,7 @@ export default class Anime extends Component {
 	makeMyListChanger() {
 		return <MylistChanger
 			className="show-anime-hover"
-			style={{flex: 1, maxHeight: '28px', margin: '0 10px 0 10px'}}
+			style={{flex: 1, maxHeight: '28px', margin: '0 10px 0 10px', fontSize: '11px'}}
 			title="Перенести в другой список"
 			list={this.props.list}
 			onChange={this.onChangeList.bind(this)}
@@ -107,21 +113,23 @@ export default class Anime extends Component {
 	}
 
 	makeFooter() {
-		var {watched, episodes, episodes_aired, status, kind} = this.props.options;
+		var {id, watched, episodes, episodes_aired, status, kind} = this.props.options;
 		return (
 			<div className="anime__footer">
 				{status != 'anons' && (watched < episodes || watched < episodes_aired) ? this.makeWatchButton() : null}
 				{watched > 0 ? this.makeRewatchButton() : null}
 				{kind != 'movie' ? this.makeWatchedSeries() : null}
-				<i className="material-icons show-anime-hover anime__manage play" title="Скопировать ссылку на серию">share</i>
+				<Share id={id} episode={watched < episodes ? watched + 1 : 1} />
 				{this.makeMyListChanger()}
 				{this.makeDetail()}
 			</div>);
 	}
 
 	toggleBookmark() {
-		if(!this.props.favoritable) add(this.props.options.id);
-			else unset(this.props.options.id);
+		if(!this.props.favoritable)
+			add(this.props.options.id);
+		else
+			unset(this.props.options.id);
 	}
 
 	toggleDetail() {
@@ -171,7 +179,12 @@ export default class Anime extends Component {
 			>
 				<img className="anime__poster" src={domain + image.x96} />
 				<a className="title" href={domain + url} target="_blank" title={russian}>{russian}</a>
-				{this.props.useFavorites ? <Bookmark active={this.props.favoritable} toggle={this.toggleBookmark.bind(this)} /> : null}
+				{this.props.useFavorites
+					? <Bookmark
+							active={this.props.favoritable}
+							toggle={this.toggleBookmark.bind(this)}
+						/>
+					: null}
 				<Status status={status} /><br/>
 				<Markers anime={this.props.options} />
 				{this.makeFooter()}
