@@ -2,6 +2,8 @@ const path = require("path");
 const webpack = require('webpack');
 const Dotenv = require('dotenv-webpack');
 const TerserPlugin = require('terser-webpack-plugin');
+var os = require('os');
+var UglifyJsParallelPlugin = require('webpack-uglify-parallel');
 
 module.exports = (env, argv) => {
 	return {
@@ -24,7 +26,10 @@ module.exports = (env, argv) => {
 					test: /\.(js|jsx)$/,
 					exclude: /node_modules/,
 					use: {
-						loader: "babel-loader"
+						loader: "babel-loader",
+						options: {
+							cacheDirectory: true
+						}
 					}
 				}
 			]
@@ -44,6 +49,9 @@ module.exports = (env, argv) => {
 					: "./.env.development",
 				safe: true
 			}),
+			new UglifyJsParallelPlugin({
+        workers: os.cpus().length,
+      }),
 			new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
 		],
 		optimization: {

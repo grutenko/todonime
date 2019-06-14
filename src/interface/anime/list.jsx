@@ -2,6 +2,9 @@ import React, { Component, Fragment } from "react";
 import ReactDOM from 'react-dom';
 import Loader from '../share/loader';
 
+import PNotify from 'pnotify/dist/es/PNotify';
+import PNotifyButtons from 'pnotify/dist/es/PNotifyButtons';
+
 import * as AnimeModel from '../../lib/anime';
 import * as Favorites from '../../lib/favorites';
 import {compare} from '../../lib/compare';
@@ -65,6 +68,15 @@ export default class List extends Component {
 		this.setState(this.__defaultState(state || {}));
 	}
 
+	shouldComponentUpdate(nextProps) {
+		/**
+		 * - Optimization
+		 * "active" prop provide activing current tab. If tab not active then
+		 * no need to update this component
+		 */
+		return nextProps.active;
+	}
+
 	__defaultState(withValues) {
 		this.rewrite = true;
 
@@ -79,9 +91,15 @@ export default class List extends Component {
 		}, withValues || {});
 	}
 
-	componentDidMount() {
-		this.getAnimes(true);
+	__subscribeFavorites() {
+		return subscribe('favorites', ({detail}) => {
+			const ids = this.animes.map(anime => anime.id);
+			if(detail.ids.every(id => ids.indexOf(id) != -1))
+				this.forceUpdate();
+		});
+	}
 
+	__subscribeScrollPagination() {
 		$('#'+this.listID).scroll((e) => {
 			var list = $(e.currentTarget);
 
@@ -92,11 +110,10 @@ export default class List extends Component {
 				this.incrementPage();
 			}
 		});
+	}
 
-		if(this.props.useFavorites)
-			this.fvEventID = subscribe('favorites', () => this.forceUpdate());
-
-		this.eventDetailID = subscribe('toggleDetail', (e) => {
+	__subscribeToggleDetail() {
+		return subscribe('toggleDetail', (e) => {
 			if(e.detail.type != 'show' || e.detail.list != this.props.list)
 				return;
 
@@ -107,10 +124,13 @@ export default class List extends Component {
 				scrollTop: e.detail.el.offsetTop - 260
 			}, 250);
 		});
+	}
 
-		this.eventChangeList = subscribe('changeList', (e) => {
+	__subscribeChangeList() {
+		subscribe('changeList', (e) => {
 			const {from, to} = e.detail;
-			if([from, to].indexOf(this.props.list) == -1) return;
+			if([from, to].indexOf(this.props.list) == -1)
+				return;
 
 			this.updateStateWithLoader({
 				page: DEF_PAGE
@@ -118,12 +138,22 @@ export default class List extends Component {
 		})
 	}
 
+	componentDidMount() {
+		if(this.props.active)
+			this.getAnimes(true);
+
+		this.listeners = [
+			(this.props.useFavorites ? this.__subscribeFavorites() : undefined),
+			this.__subscribeToggleDetail(),
+			this.__subscribeChangeList()
+		];
+
+		this.__subscribeScrollPagination();
+	}
+
 	componentWillUnmount() {
 		$('#'+this.listID).off();
-		if(this.props.useFavorites)
-			unsubscribe(this.fvEventID);
-
-		unsubscribe([this.eventDetailID, this.eventChangeList]);
+		unsubscribe(this.listeners);
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -190,7 +220,14 @@ export default class List extends Component {
 			}
 
 			switch(key) {
-				case 'search': reset('search', null); break;
+				case 'search':
+					/**
+					 * - Optimization
+					 * If current search not setted then update state is no need to update.
+					 */
+					if(this.state.search != null)
+						reset('search', null);
+				break;
 				default: return;
 			}
 		}
@@ -311,6 +348,14 @@ export default class List extends Component {
 				to: list,
 				id
 			});
+
+			PNotify.success({
+		    text: "Аниме перенесено в другой список",
+		    addClass: 'z-indx-top b-white',
+		    width: '250px',
+		    minHeight: '32px',
+		    delay: 1500
+		  });
 		});
 	}
 

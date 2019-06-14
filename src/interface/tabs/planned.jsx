@@ -4,8 +4,10 @@ import Animes from '../anime/list';
 
 export default class PlannedTab extends Component {
 	render() {
-		return (<div className="tab__planned">
-			<Animes list="planned" limit="20" />
-		</div>);
+		return (<Animes list="planned" limit="20" active={this.props.active}/>);
 	}
 }
+
+PlannedTab.defaultProps = {
+	active: false
+};

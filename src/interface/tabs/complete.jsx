@@ -4,8 +4,10 @@ import Animes from '../anime/list';
 
 export default class CompleteTab extends Component {
 	render() {
-		return (<div className="tab__complete">
-			<Animes list="completed" limit="20"/>
-		</div>);
+		return (<Animes list="completed" limit="20" active={this.props.active}/>);
 	}
 }
+
+CompleteTab.defaultProps = {
+	active: false
+};

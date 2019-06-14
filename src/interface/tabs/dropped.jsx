@@ -4,8 +4,10 @@ import Animes from '../anime/list';
 
 export default class DroppedTab extends Component {
 	render() {
-		return (<div className="tab__dropped">
-			<Animes list="dropped" limit="20"/>
-		</div>);
+		return (<Animes list="dropped" limit="20" active={this.props.active}/>);
 	}
 }
+
+DroppedTab.defaultProps = {
+	active: false
+};

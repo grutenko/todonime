@@ -31,15 +31,16 @@ export default class Tab extends Component {
 	}
 
 	render() {
-		var tabClass = "tabs__content-tab"
-			+ (this.state.active ? " active" : "");
+		const {children} = this.props;
+		const {active} = this.state;
 
-		var authRequired = this.props.children.props.auth;
+		const tabClass = "tabs__content-tab" + (active ? " active" : "");
+		const authRequired = children.props.auth;
 
 		return (<div className={tabClass}>
 			{authRequired == "true" && !ShikimoriAPI.isAuth()
 				? <Auth/>
-				: this.props.children}
+				: React.cloneElement(children, {active})}
 		</div>);
 	}
 }
