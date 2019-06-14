@@ -15,6 +15,14 @@ html, body {
 	color: #848484;
 }
 
+.z-indx-top {
+    z-index: 10;
+}
+
+.b-white {
+    background: white;
+}
+
 a:visited {
 	color: #484848;
 }
@@ -436,7 +444,7 @@ div.filter {
 
 .anime__footer-watched--series {
 	color: #898989;
-	font-size: 12px;
+	font-size: 11px;
 	line-height: 1.8;
 	margin: 4px;
 }
