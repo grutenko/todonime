@@ -64,7 +64,7 @@ export default class Detail extends Component {
 	}
 
 	__getGenreLink(genre) {
-		return 'https://shikimori.one/animes/genre/' + genre.id + '-' + genre.filtered_name;
+		return 'https://shikimori.one/animes/genre/' + genre.id + '-' + genre.name;
 	}
 
 	makeGenresList() {
