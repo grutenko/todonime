@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Todonime",
   "short_name": "Todonime",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "options_page": "options.html",
   "description": "Ваши аниме-списки с shikimori.one и минималистичный плеер с синхронизацией просмотра.",
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",

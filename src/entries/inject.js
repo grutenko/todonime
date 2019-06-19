@@ -55,10 +55,12 @@ function setWatchButtonWithHref(response) {
 $(".b-click-watched:not(.watched)").on('click', (e) => {
 	if($(e.currentTarget).hasClass('watched')) return;
 
-	if($(e.currentTarget).attr('data-rate-id') === undefined) {
+	let rateID = $(e.currentTarget).attr('data-rate-id');
+
+	if(rateID === undefined) {
 		request('anime.addRate', {
 			anime_id: meta('anime:id'),
-		   episode: meta('anime:episode')
+		  episode: meta('anime:episode')
 		}, setWatchButtonWithHref);
 
 		return;
@@ -67,6 +69,7 @@ $(".b-click-watched:not(.watched)").on('click', (e) => {
 	request('anime.episode.watch', {
 		anime_id: meta('anime:id'),
 	  episode: meta('anime:episode'),
+	  rateID
 	}, setWatchButtonWithHref)
 })
 
