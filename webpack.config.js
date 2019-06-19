@@ -49,9 +49,6 @@ module.exports = (env, argv) => {
 					: "./.env.development",
 				safe: true
 			}),
-			new UglifyJsParallelPlugin({
-        workers: os.cpus().length,
-      }),
 			new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
 		],
 		optimization: {
