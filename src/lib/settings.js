@@ -14,6 +14,10 @@ export function get(name) {
 	return JSON.parse(localStorage[name] || null);
 }
 
+export function exists(name) {
+	return get(name) != null;
+}
+
 /*
 
 */

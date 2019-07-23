@@ -1,0 +1,34 @@
+{
+	"build_systems":
+	[
+		{
+			"cmd":
+			[
+				"npm run build"
+			]
+		}
+	],
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"package-lock.json"
+			],
+			"folder_exclude_patterns":
+			[
+				"node_modules",
+				"archives"
+			],
+			"path": "."
+		}
+	],
+	"name": "Todonime Extension",
+	"settings":
+	{
+		"font_size": 10,
+		"font_face": "Ubuntu Mono",
+		"tab_size": 2,
+		"word_wrap": false
+	}
+}
