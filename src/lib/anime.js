@@ -93,11 +93,15 @@ export function getList(list, sort, filter, limit, page, search) {
 }
 
 export function getDetail(ID) {
-	return ShikimoriAPI.getInstance().getAnime(ID);
+	return ShikimoriAPI
+		.getInstance()
+		.getAnime(ID);
 }
 
 export function updateRate(rateID, data) {
-	return ShikimoriAPI.getInstance().updateRate(rateID, data);
+	return ShikimoriAPI
+		.getInstance()
+		.updateRate(rateID, data);
 }
 
 
@@ -113,7 +117,8 @@ function setRates(animes, rates) {
 	return animes.map(anime => {
 		for(let i in rates) {
 			let rate = rates[i]
-			if(rate.target_id != anime.id) continue;
+			if(rate.target_id != anime.id || rate.episodes === undefined)
+				continue;
 
 			anime = Object.assign(anime, {
 				watched: rate.episodes,
