@@ -29,6 +29,7 @@ export default class List extends Component {
 	constructor(props) {
 		super(props);
 		this.state = this.__defaultState(
+			/* Get current tab state from local storage */
 			get('tabState_'+this.props.list)
 		);
 
@@ -52,8 +53,13 @@ export default class List extends Component {
 	updateStateWithLoader(state, rewrite) {
 		var stateFields = Object.assign({loaded: false}, state);
 
-		this.rewrite = (rewrite == undefined ? true : rewrite);
-		this.setState(Object.assign(this.state, stateFields));
+		this.rewrite = rewrite == undefined
+			? true
+			: rewrite;
+
+		this.setState(Object.assign(
+			this.state, stateFields
+		));
 	}
 
 	/**
@@ -64,7 +70,10 @@ export default class List extends Component {
  	 * @param  {boolean} state If true - current anime list rewrited else added to end.
 	 */
 	resetStateWith(state, rewrite) {
-		this.rewrite = (rewrite == undefined ? true : rewrite);
+		this.rewrite = rewrite == undefined
+			? true
+			: rewrite;
+
 		this.setState(this.__defaultState(state || {}));
 	}
 
@@ -80,10 +89,12 @@ export default class List extends Component {
 	__defaultState(withValues) {
 		this.rewrite = true;
 
+		const {limit} = this.props;
+
 		return Object.assign({
 			loaded		: false,
 			sort 			: DEF_SORT,
-			limit 		: this.props.limit,
+			limit 		: limit,
 			page 			: DEF_PAGE,
 			isLastPage: false,
 			search 		: null,
@@ -94,6 +105,7 @@ export default class List extends Component {
 	__subscribeFavorites() {
 		return subscribe('favorites', ({detail}) => {
 			const ids = this.animes.map(anime => anime.id);
+
 			if(detail.ids.every(id => ids.indexOf(id) != -1))
 				this.forceUpdate();
 		});
@@ -143,7 +155,10 @@ export default class List extends Component {
 			this.getAnimes(true);
 
 		this.listeners = [
-			(this.props.useFavorites ? this.__subscribeFavorites() : undefined),
+			(this.props.useFavorites
+				? this.__subscribeFavorites()
+				: undefined
+			),
 			this.__subscribeToggleDetail(),
 			this.__subscribeChangeList()
 		];
@@ -157,21 +172,37 @@ export default class List extends Component {
 	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if(!this.state.loaded) {
-			this.getAnimes(this.rewrite);
+		/* New data loaded from server if current state not loading */
+		if(this.state.loaded) return;
 
-			const {filter, sort, search} = this.state;
-			set('tabState_'+this.props.list, {
-				filter, sort, search
-			});
-		}
+		this.getAnimes(this.rewrite);
+
+		const {
+			filter,
+			sort,
+			search
+		} = this.state;
+
+		set('tabState_'+this.props.list, {
+			filter, sort, search
+		});
 	}
 
 	getAnimes(rewrite) {
-		const {sort, limit, page, filter, search} = this.state;
+		const {
+			sort,
+			limit,
+			page,
+			filter,
+			search
+		} = this.state;
+
+		const {
+			list
+		} = this.props;
 
 		AnimeModel.getList(
-			this.props.list,
+			list,
 			sort,
 			filter,
 			limit,
@@ -249,8 +280,9 @@ export default class List extends Component {
 
 	onClearBookmarks() {
 		Favorites.unset(
-			this.animes.filter(anime => Favorites.exists(anime.id))
-				.map(anime => anime.id)
+			this.animes.filter(
+				anime => Favorites.exists(anime.id)
+			).map(anime => anime.id)
 		);
 	}
 
@@ -319,9 +351,17 @@ export default class List extends Component {
 	}
 
 	searchOnShiki() {
-		const {search, sort, filter} = this.state;
-		const url = shikimoriURLMake(search, sort,
-				(!compare(DEF_FILTER, filter) ? filter : null));
+		const {
+			search,
+			sort,
+			filter
+		} = this.state;
+
+		const url = shikimoriURLMake(
+			search,
+			sort,
+			(!compare(DEF_FILTER, filter) ? filter : null)
+		);
 
 		window.open(url, '_blank');
 	}
@@ -329,10 +369,16 @@ export default class List extends Component {
 	makeButtonsForEmptyList() {
 		return (
 			<div className="auth_required"><p>
-				<button className="main__button" onClick={this.onCancel.bind(this)}>
+				<button
+					className="main__button"
+					onClick={this.onCancel.bind(this)}
+				>
 					сбросить
 				</button>
-				<button className="main__button" onClick={this.searchOnShiki.bind(this)}>
+				<button
+					className="main__button"
+					onClick={this.searchOnShiki.bind(this)}
+				>
 					искать на шикимори
 				</button>
 			</p></div>);
@@ -360,20 +406,37 @@ export default class List extends Component {
 	}
 
 	render() {
-		const {filter, search} = this.state;
+		const {
+			filter,
+			search
+		} = this.state;
 
 		return (<div>
 			<div className="filter">
-				<Search onApply={this.applySearch} onReset={this.onReset('search')} q={search}/>
+				<Search
+					onApply={this.applySearch}
+					onReset={this.onReset('search')}
+					q={search}
+				/>
 				<div style={{display: 'inline-block', float: 'right'}}>
-					<Sort onApply={this.applySorting} onReset={this.onReset('sort')} active={this.state.sort}/>
-					<Filter onApply={this.applyFilter} onReset={this.onReset('filter')} define={this.state.filter}/>
+					<Sort
+						onApply={this.applySorting}
+						onReset={this.onReset('sort')}
+						active={this.state.sort}
+					/>
+					<Filter
+						onApply={this.applyFilter}
+						onReset={this.onReset('filter')}
+						define={this.state.filter}
+					/>
 				</div>
 			</div>
 			{!this.state.loaded
 				? <Loader />
 				: this.animes.length == 0
-					? <div className="auth_required"><p>Нет ни одного аниме. ¯\_(ツ)_/¯</p></div>
+					? <div className="auth_required">
+							<p>Нет ни одного аниме. ¯\_(ツ)_/¯</p>
+						</div>
 					: null}
 			{this.makeList()}
 		</div>);
