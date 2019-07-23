@@ -39,7 +39,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-	width: 10px;
+	width: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -88,17 +88,31 @@ ul.tabs__header {
 	display: flex;
 	width: 100%;
 	background: #424848;
+
+	-webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;
+
+  box-shadow: 0 -3px 5px #000000;
+  z-index: 10;
 }
 
 ul.tabs__header li {
 	list-style-type: none;
 	padding: 13px;
 	display: block;
-	text-align: center;
 	transition: 250ms;
 	background: #424848;
 	color: #D7EEBA;
 	cursor: pointer;
+	display: flex;
+
+	border: 2px solid #424848;
+
+	box-sizing: border-box;
 }
 
 ul.tabs__header li:not(.no-hover):hover {
@@ -106,10 +120,30 @@ ul.tabs__header li:not(.no-hover):hover {
 	color: #424848;
 }
 
+ul.tabs__header li.active:hover {
+	border: 2px solid #C7DEAA;
+}
+
+.tab__placeholder {
+	white-space: nowrap; /* Запрещаем перенос строк */
+  overflow: hidden; /* Обрезаем все, что не помещается в область */
+  vertical-align: top;
+  padding: 5px;
+  text-overflow: ellipsis;
+	display: inline-block;
+}
+
 ul.tabs__header li.active {
 	background: #D7EEBA;
+	border: 2px solid #D7EEBA;
 	color: #424848 !important;
+	box-shadow: 0 -3px 5px #000000;
+	z-index: 2;
 	flex: 1;
+}
+
+.tabs__header-element.dropped {
+	border: 2px solid #D7EEBA;
 }
 
 .tab-name {
@@ -181,6 +215,7 @@ button.main__button:hover {
 	background: #fff;
 	margin: 5px;
 	overflow: hidden;
+	cursor: move;
 }
 
 .anime__container img {
@@ -193,8 +228,8 @@ button.main__button:hover {
   overflow: hidden; /* Обрезаем все, что не помещается в область */
   padding: 5px; /* Поля вокруг текста */
   text-overflow: ellipsis;
-	width: 230px;
 	display: inline-block;
+	flex: 1;
 }
 
 .anime__status {
@@ -204,16 +239,16 @@ button.main__button:hover {
     padding: 2px;
 	color: #424848;
 	display: inline-block;
-	background: #89ff78;
 	color: white;
+	background: #2ac8d4;
 }
 
 .anime__status.ongoing {
-	background: blue;
+	background: #ffbd61
 }
 
 .anime__status.released {
-	background: green;
+	background: #4cad8b;
 }
 
 .anime__footer {
@@ -269,13 +304,14 @@ img.anime__poster {
 div.filter {
 	padding: 5px;
 	background: #D7EEBA;
+	display: flex;
 }
 
 .filter input[type="text"] {
 	padding: 10px;
 	border: none;
 	background: #D7EEBA;
-	width: 280px;
+	flex: 1;
 	font-size: 13px;
 }
 
@@ -716,6 +752,7 @@ img.users__list--avatar {
 .tag {
 	padding: 2px; margin: 2px;
 	background: #adadad;
+	display: inline-block;
 	color: white !important;
 }
 
@@ -741,4 +778,44 @@ img.users__list--avatar {
 
 .active .show-active {
 	display: initial;
+}
+
+.new-anime__icon {
+	position: absolute;
+	left: 10px;
+	background: white;
+	border-radius-top-left: 5px;
+	cursor: pointer;
+}
+
+.anime__min-toolbox-but {
+	vertical-align: middle;
+	cursor: default;
+}
+
+.anime__min-toolbox-but:hover {
+	background: #C7DEAA;
+	color: #424848;
+}
+
+.disabled {
+	pointer-events:none;
+	opacity: 0.5;
+}
+
+.tabs__content-list {
+	background: #D7EEBA;
+}
+
+.poster__icon {
+	background: none;
+	color: white;
+	margin: 2px;
+	position: absolute;
+	left: 10px;
+	cursor: default;
+}
+
+.anime__header {
+	display: flex;
 }
