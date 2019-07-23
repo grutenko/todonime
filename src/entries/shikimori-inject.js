@@ -30,6 +30,7 @@ function makeButton(arUrl) {
 
 function start() {
 	var url = location.href.match(/\/+animes\/+[a-z]?(\d+)-([a-z0-9\-]+)/);
+
 	if(url != null) makeButton(url);
 
 	request('event.onTabUpdate',

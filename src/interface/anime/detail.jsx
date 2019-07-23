@@ -24,10 +24,6 @@ export default class Detail extends Component {
 			this.setState({animeID: this.props.animeID});
 	}
 
-	__makeStudioLink(studio) {
-		return 'https://shikimori.one/animes/studio/' + studio.id + '-' + studio.filtered_name;
-	}
-
 	getData() {
 		getDetail(this.props.animeID).then(anime => {
 			this.anime = anime;
@@ -35,19 +31,8 @@ export default class Detail extends Component {
 		})
 	}
 
-	makeStudios() {
-		return (
-			<div className="studios">
-				{this.anime.studios.map((studio, i) =>
-					<a key={i}
-						className="tag studio"
-						href={this.__makeStudioLink(studio)}
-						target="_blank"
-					>
-						{studio.name}
-					</a>)}
-			</div>
-		);
+	__makeStudioLink(studio) {
+		return 'https://shikimori.one/animes/studio/' + studio.id + '-' + studio.filtered_name;
 	}
 
 	__getAnimeDates() {
@@ -57,8 +42,8 @@ export default class Detail extends Component {
 		return <span>
 			{format(this.anime.aired_on)}
 			{(this.anime.released_on
-						? <span> -  {format(this.anime.released_on)} </span>
-						: null)
+				? <span> -  {format(this.anime.released_on)} </span>
+				: null)
 			}
 		</span>
 	}
@@ -71,9 +56,30 @@ export default class Detail extends Component {
 		return (
 			<span className="genres">
 			{this.anime.genres.map((genre, i) =>
-				<a key={i} className="tag genre" href={this.__getGenreLink(genre)} target="_blank">{genre.russian}</a>)}
+				<a
+					key={i}
+					className="tag genre"
+					href={this.__getGenreLink(genre)}
+					target="_blank"
+				>
+					{genre.russian}
+				</a>)}
 			</span>
 		);
+	}
+
+	makeDuration() {
+		return this.anime.duration > 0
+			? <div>
+					<span className="b-key">
+						{['movie', 'music'].indexOf(this.anime.kind) != -1
+							? 'Длительность'
+							: 'Длительность эпизода'
+						}:
+					</span>
+						{this.anime.duration} мин.
+			  </div>
+			: null;
 	}
 
 	makeDetailInfo() {
@@ -83,12 +89,7 @@ export default class Detail extends Component {
 					<span className="tag status">{this.anime.status}</span>
 					{this.__getAnimeDates()}
 			</div>
-			<div>
-				<span className="b-key">
-					{['movie', 'music'].indexOf(this.anime.kind) != -1 ? 'Длительность' : 'Длительность эпизода'}:
-				</span>
-					{this.anime.duration} мин.
-			</div>
+			{this.makeDuration()}
 			<div>
 				<span className="b-key">Жанры:</span>
 				{this.makeGenresList()}
@@ -108,6 +109,21 @@ export default class Detail extends Component {
 					{this.makeStudios()}
 				</div>
 				{this.makeDetailInfo()}
+			</div>
+		);
+	}
+
+	makeStudios() {
+		return (
+			<div className="studios">
+				{this.anime.studios.map((studio, i) =>
+					<a key={i}
+						className="tag studio"
+						href={this.__makeStudioLink(studio)}
+						target="_blank"
+					>
+						{studio.name}
+					</a>)}
 			</div>
 		);
 	}
