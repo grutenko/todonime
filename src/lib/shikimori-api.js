@@ -91,15 +91,15 @@ export function authorize(options) {
 		var redirectRgx = new RegExp(redirectUri + '[#\?](.*)');
 
 		var options = {
-		    'interactive': true,
-		    'url': "https://shikimori.one/oauth/authorize"+
-		           '?client_id=' + clientID +
-		           '&redirect_uri=' + encodeURIComponent(redirectUri) +
-		           '&response_type=' + responseType
-       	};
+		  'interactive': true,
+		  'url': "https://shikimori.one/oauth/authorize"+
+		         '?client_id=' + clientID +
+		         '&redirect_uri=' + encodeURIComponent(redirectUri) +
+		         '&response_type=' + responseType
+      };
 
-       	chrome.identity.launchWebAuthFlow(options, (Uri) => {
-       		if(chrome.runtime.lastError) {
+     chrome.identity.launchWebAuthFlow(options, (Uri) => {
+      if(chrome.runtime.lastError) {
 				reject(new Error(chrome.runtime.lastError.message));
 				return;
 			}
@@ -147,9 +147,13 @@ function request(token, path, params, method, auth) {
 		method = (method === undefined ? "GET" : method);
 		auth = (auth === undefined ? true : auth);
 
-		let headers = auth
-			? {"Authorization": "Bearer " + token}
-			: {};
+		let headers = {
+			'Cache-Control': 'must-revalidate'
+		};
+
+		if(auth) {
+			headers = {"Authorization": "Bearer " + token}
+		}
 
 		headers = Object.assign(headers, {
 			'Cache-Control': 'must-revalidate'
