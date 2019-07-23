@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import ReactDOM from 'react-dom';
 
 export default class Search extends Component {
@@ -9,8 +9,16 @@ export default class Search extends Component {
 
 	componentDidUpdate(prevProps, prevState) {
 		if(this.props.q != prevProps.q) {
-			$(this.ref.current).val(this.props.q);
+			$(this.ref).val(this.props.q);
 		}
+	}
+
+	onClick(e) {
+		const text = $(this.ref)
+			.val()
+			.trim();
+
+		if(text != '') this.props.onApply(text);
 	}
 
 	onKeyUp(e) {
@@ -23,14 +31,22 @@ export default class Search extends Component {
 
 	render() {
 		return (
-			<input
-				onKeyUp={this.onKeyUp.bind(this)}
-				onChange={()=>{}} // React warning
-				defaultValue={this.props.q || ''}
-				ref={this.ref}
-				type="text"
-				className="search__input"
-				placeholder="Поиск"
-			/>);
+			<Fragment>
+				<input
+					onKeyUp={this.onKeyUp.bind(this)}
+					onChange={()=>{}} // React warning
+					defaultValue={this.props.q || ''}
+					ref={(input) => {this.ref = input}}
+					type="text"
+					className="search__input"
+					placeholder="Поиск"
+				/>
+				<i
+					className="material-icons tools__button"
+					onClick={this.onClick.bind(this)}
+				>
+					search
+				</i>
+			</Fragment>);
 	}
 }
