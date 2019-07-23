@@ -5,14 +5,19 @@ const METHODS = {
 	'anime.get': async (api, data) => {
 		return api.getAnime(data.anime_id);
 	},
-	'anime.episode.watch': async (api, {rateID}) => {
-		return api.incEpisode(rateID);
+	'anime.episode.watch': async (api, {rateID, episode}) => {
+		return api.updateRate(rateID, {
+			episodes: parseInt(episode)
+		});
 	},
 	'anime.episode.isWatched': async (api, {anime_id, episode}) => {
 		return api.getAnime(anime_id).then(({user_rate}) => {
 			return {
-				isWatched: user_rate != null && user_rate.episodes >= episode,
-				rateID: user_rate ? user_rate.id : null
+				isWatched: user_rate != null
+					&& user_rate.episodes >= episode,
+				rateID: user_rate
+					? user_rate.id
+					: null
 			};
 		})
 	},

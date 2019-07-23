@@ -44,12 +44,9 @@ function setWatchButtonWithHref(response) {
   });
 
 	setWatchButton(response);
-	if(!$('.to-next-episode').attr('href')) {
-		alert('нету следующего эпизода');
-		return;
-	}
-
-	location.href = $('.to-next-episode').attr('href');
+	location.href = $('.to-next-episode').attr('href')
+		? $('.to-next-episode').attr('href')
+		: meta('anime:detailPage');
 }
 
 $(".b-click-watched:not(.watched)").on('click', (e) => {
@@ -59,21 +56,21 @@ $(".b-click-watched:not(.watched)").on('click', (e) => {
 
 	if(rateID === undefined) {
 		request('anime.addRate', {
-			anime_id: meta('anime:id'),
-		  episode: meta('anime:episode')
+			anime_id: parseInt(meta('anime:id')),
+		  episode: parseInt(meta('anime:episode'))
 		}, setWatchButtonWithHref);
 
 		return;
 	}
 
 	request('anime.episode.watch', {
-		anime_id: meta('anime:id'),
-	  episode: meta('anime:episode'),
+		anime_id: parseInt(meta('anime:id')),
+	  episode: parseInt(meta('anime:episode')),
 	  rateID
 	}, setWatchButtonWithHref)
 })
 
 request('anime.episode.isWatched', {
-	anime_id: meta('anime:id'),
-	episode: meta('anime:episode')
+	anime_id: parseInt(meta('anime:id')),
+	episode: parseInt(meta('anime:episode'))
 }, setWatchButton);
