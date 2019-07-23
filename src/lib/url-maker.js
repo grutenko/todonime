@@ -9,7 +9,7 @@ export function shikimoriURLMake(search, sort, filter) {
 }
 
 export function todonimeURLMake(anime_id, episode, video_id) {
-	const BASE_URL = 'https://todonime.space/video/';
+	const BASE_URL = 'https://todonime.ru/video/';
 	return BASE_URL + anime_id + '/' + episode
 			+ (video_id ? '/' + video_id : '');
 }
