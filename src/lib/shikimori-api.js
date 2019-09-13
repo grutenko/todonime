@@ -95,8 +95,9 @@ export function authorize(options) {
 		  'url': "https://shikimori.one/oauth/authorize"+
 		         '?client_id=' + clientID +
 		         '&redirect_uri=' + encodeURIComponent(redirectUri) +
-		         '&response_type=' + responseType
-      };
+		         '&response_type=' + responseType +
+						 '&scope=user_rates'
+			};
 
      chrome.identity.launchWebAuthFlow(options, (Uri) => {
       if(chrome.runtime.lastError) {
@@ -224,6 +225,10 @@ export default class ShikimoriAPI {
 						)
 					},400)
 			});
+		} else if(xhr.status == 401) {
+			return this.__refresh().then((data) => {
+				return this.__request(path, params, method, auth);
+			});
 		}
 	}
 
@@ -232,12 +237,6 @@ export default class ShikimoriAPI {
 	*/
 	__request(path, params, method, auth) {
 		params = params || {};
-
-		if(new Date().getTime() >= this.expriesIn) {
-			return this.__refresh().then((data) => {
-				return this.__request(path, params, method, auth);
-			});
-		}
 
 		return request(
 			this.token, path, params, method, auth
@@ -453,4 +452,8 @@ ShikimoriAPI.isAuth = function() {
 
 ShikimoriAPI.getInstance = function() {
 	return window.sAPI;
+}
+
+ShikimoriAPI.resetAuth = function() {
+	localStorage.removeItem('shikimori_session');
 }
