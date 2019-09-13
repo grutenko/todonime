@@ -21,7 +21,9 @@ chrome.runtime.onInstalled.addListener(() => {
 	  			})
 	  	});
 		}
-	)
+	);
+
+	ShikimoriAPI.resetAuth();
 });
 
 function showNews(notifies) {
