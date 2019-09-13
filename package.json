@@ -3,8 +3,11 @@
   "version": "0.9.0",
   "private": true,
   "dependencies": {
+    "babel-plugin-syntax-async-functions": "^6.13.0",
     "dotenv-webpack": "^1.7.0",
-    "jquery": "^3.3.1"
+    "jquery": "^3.4.1",
+    "moment": "^2.24.0",
+    "pnotify": "^4.0.0"
   },
   "scripts": {
     "start": "webpack --mode development",
@@ -23,11 +26,14 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@babel/plugin-transform-regenerator": "^7.4.5",
     "@babel/preset-es2015": "^7.0.0-beta.53",
+    "babel-plugin-transform-regenerator": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
     "compression-webpack-plugin": "^2.0.0",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
-    "react-scripts": "2.1.5",
+    "react-scripts": "^3.1.1",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.2.3",
     "webpack-uglify-parallel": "^0.1.4"
